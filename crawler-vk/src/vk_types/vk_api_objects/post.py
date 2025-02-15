@@ -1,13 +1,13 @@
 from typing import Any, Literal, TypedDict
 
-from vk_types.vk_api_objects.comments import Comments
-from vk_types.vk_api_objects.copyright import Copyright
-from vk_types.vk_api_objects.donut import Donut
-from vk_types.vk_api_objects.geo import Geo
-from vk_types.vk_api_objects.likes import Likes
-from vk_types.vk_api_objects.post_source import PostSource
-from vk_types.vk_api_objects.reposts import Reposts
-from vk_types.vk_api_objects.views import Views
+from src.vk_types.vk_api_objects.comments import Comments
+from src.vk_types.vk_api_objects.copyright import Copyright
+from src.vk_types.vk_api_objects.donut import Donut
+from src.vk_types.vk_api_objects.geo import Geo
+from src.vk_types.vk_api_objects.likes import Likes
+from src.vk_types.vk_api_objects.post_source import PostSource
+from src.vk_types.vk_api_objects.reposts import Reposts
+from src.vk_types.vk_api_objects.views import Views
 
 
 class Post(TypedDict):

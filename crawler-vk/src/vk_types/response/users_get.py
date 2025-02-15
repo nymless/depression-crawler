@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from vk_types.vk_api_objects.user import User
+from src.vk_types.vk_api_objects.user import User
 
 
 class UsersGet(TypedDict):

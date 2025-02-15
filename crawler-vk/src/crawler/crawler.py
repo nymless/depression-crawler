@@ -3,10 +3,10 @@ import random
 from datetime import UTC, datetime
 from typing import cast
 
-from db.dal import DAL
-from service.service import Service
-from vk_types.response.newsfeed_search import NewsfeedSearch
-from vk_types.vk_api_objects.post import Post
+from src.db.dal import DAL
+from src.service.service import Service
+from src.vk_types.response.newsfeed_search import NewsfeedSearch
+from src.vk_types.vk_api_objects.post import Post
 
 log = logging.getLogger(__name__)
 

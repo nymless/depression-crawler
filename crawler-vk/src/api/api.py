@@ -1,13 +1,12 @@
 import logging
 import os
 
-import uvicorn
 from fastapi import BackgroundTasks, FastAPI
 
-from client.client import Client
-from crawler.crawler import Crawler
-from db.dal import DAL
-from service.service import Service
+from src.client.client import Client
+from src.crawler.crawler import Crawler
+from src.db.dal import DAL
+from src.service.service import Service
 
 # Logging configuration
 os.makedirs("logs", exist_ok=True)
@@ -60,7 +59,3 @@ def stop_crawler():
 def get_status():
     """Returns the current status of the crawler."""
     return {"running": crawler.running}
-
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)

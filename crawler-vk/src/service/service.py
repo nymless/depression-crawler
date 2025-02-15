@@ -1,10 +1,10 @@
 import logging
 from typing import Any
 
-from client.client import Client
-from db.dal import DAL
-from service.decorators.rate_limited import rate_limited
-from vk_types.request.params import (
+from src.client.client import Client
+from src.db.dal import DAL
+from src.service.decorators.rate_limited import rate_limited
+from src.vk_types.request.params import (
     GroupsGetByIdParams,
     GroupsGetParams,
     GroupsSearchParams,
@@ -13,14 +13,14 @@ from vk_types.request.params import (
     WallGetByIdParams,
     WallGetParams,
 )
-from vk_types.response.groups_get import GroupsGet
-from vk_types.response.groups_get_by_id import GroupsGetById
-from vk_types.response.groups_search import GroupsSearch
-from vk_types.response.newsfeed_search import NewsfeedSearch
-from vk_types.response.users_get import UsersGet
-from vk_types.response.wall_get import WallGet
-from vk_types.response.wall_get_by_id import WallGetById
-from vk_types.result import APIResponse
+from src.vk_types.response.groups_get import GroupsGet
+from src.vk_types.response.groups_get_by_id import GroupsGetById
+from src.vk_types.response.groups_search import GroupsSearch
+from src.vk_types.response.newsfeed_search import NewsfeedSearch
+from src.vk_types.response.users_get import UsersGet
+from src.vk_types.response.wall_get import WallGet
+from src.vk_types.response.wall_get_by_id import WallGetById
+from src.vk_types.result import APIResponse
 
 log = logging.getLogger(__name__)
 

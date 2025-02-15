@@ -1,8 +1,8 @@
 from typing import Any, TypedDict
 
-from vk_types.vk_api_objects.group import Group
-from vk_types.vk_api_objects.post import Post
-from vk_types.vk_api_objects.user import User
+from src.vk_types.vk_api_objects.group import Group
+from src.vk_types.vk_api_objects.post import Post
+from src.vk_types.vk_api_objects.user import User
 
 
 class Response(TypedDict):

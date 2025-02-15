@@ -2,7 +2,7 @@ import logging
 from collections.abc import Mapping
 from typing import Any, Callable, Generic, TypeVar, cast
 
-from vk_types.response.error import ErrorResponse
+from src.vk_types.response.error import ErrorResponse
 
 T = TypeVar("T", bound=Mapping[str, Any])
 
