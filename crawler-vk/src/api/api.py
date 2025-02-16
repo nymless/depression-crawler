@@ -50,7 +50,6 @@ def start_crawler(background_tasks: BackgroundTasks):
 def stop_crawler():
     """Stops the crawler and closes the database connection."""
     crawler.running = False
-    dal.close()
     log.info("Crawler stop command received, database connection closed")
     return {"status": "stopping"}
 
