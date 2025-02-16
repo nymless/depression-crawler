@@ -1,7 +1,8 @@
 import logging
 import os
 
-from fastapi import BackgroundTasks, FastAPI
+from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from src.client.client import Client
 from src.crawler.crawler import Crawler
@@ -25,6 +26,15 @@ service = Service(client, dal)
 crawler = Crawler(service, dal)
 
 app = FastAPI()
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, e: Exception):
+    log.exception("Unhandled error")
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal Server Error"},
+    )
 
 
 def run_crawler():
