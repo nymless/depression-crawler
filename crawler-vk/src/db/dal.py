@@ -122,7 +122,7 @@ class DAL:
                 ),
             )
         except psycopg2.errors.UniqueViolation as e:
-            log.error(e)
+            log.exception("Save post unique violation error")
         self.conn.commit()
 
     def close(self):
