@@ -121,7 +121,7 @@ class DAL:
                     timestamp,
                 ),
             )
-        except psycopg2.errors.UniqueViolation as e:
+        except psycopg2.errors.UniqueViolation:
             log.exception("Save post unique violation error")
         self.conn.commit()
 
