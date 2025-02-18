@@ -1,17 +1,17 @@
-FROM python:3.13-slim
+FROM python:3.12-slim-bookworm
 
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:0.6.0 /uv /uvx /bin/
+
+# Copy the project into the image
+ADD . /app
+
+# Sync the project into a new environment, using the frozen lockfile
 WORKDIR /app
-
-# Install poetry and virtual environment
-COPY pyproject.toml poetry.lock ./
-RUN pip install --no-cache-dir poetry
-RUN poetry config virtualenvs.in-project false
-RUN poetry install --no-root --no-directory --no-interaction --no-cache --no-ansi --only main
-
-COPY . .
+RUN uv sync --frozen
 
 # Describe which port the application is listening on
 EXPOSE 8000
 
-ENTRYPOINT ["poetry", "run", "uvicorn", "src.api.api:app"]
-CMD ["--host", "0.0.0.0", "--port", "8000"]
+# Run uvicorn server on localhost:8000
+CMD ["uv", "run", "uvicorn", "src.api.api:app", "--host", "0.0.0.0", "--port", "8000"]
