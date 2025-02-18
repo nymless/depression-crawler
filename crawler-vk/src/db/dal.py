@@ -27,7 +27,7 @@ class DAL:
             """
             CREATE TABLE IF NOT EXISTS requests (
                 request_id  serial PRIMARY KEY,
-                timestamp   text,
+                timestamp   timestamp,
                 endpoint    text,
                 params      text,
                 status_code integer
