@@ -175,3 +175,6 @@ cython_debug/
 
 # Crawler logging
 logs/
+
+# Any .env.* pattern files
+.env.*
