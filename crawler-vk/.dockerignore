@@ -1,4 +1,9 @@
+Dockerfile
+.dockerignore
+.gitignore
+Makefile
+README.md
+.git
+logs
 .venv
 .env
-__pycache__
-logs
