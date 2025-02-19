@@ -1,4 +1,5 @@
 import { openDB, User } from '@/lib/db';
+import { JWT_SECRET } from '@/lib/env';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
@@ -23,15 +24,7 @@ export async function POST(request: Request) {
     }
 
     const userToken: UserToken = { id: user.id, username: user.username };
-    const privateKey = process.env.JWT_SECRET;
-
-    if (!privateKey) {
-        console.error('JWT_SECRET is not defined in environment variables');
-        return new Response(JSON.stringify({ error: 'Server login error' }), {
-            status: 500,
-        });
-    }
-    const token = jwt.sign(userToken, privateKey, { expiresIn: '1h' });
+    const token = jwt.sign(userToken, JWT_SECRET, { expiresIn: '1h' });
 
     // Use a non-Secure cookie in development to avoid issues over HTTP,
     // and a Secure cookie in production for safer transmission over HTTPS.

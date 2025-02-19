@@ -8,18 +8,24 @@ WORKDIR /app
 # in the service root to provide the necessary environment variables.
 # When using Docker Compose, we can also pass variables during the
 # build stage through build arguments.
+# Comment ARGs for .env build
 ARG DB_NAME
 ARG DB_USER
 ARG DB_PASSWORD
 ARG DB_PORT
 ARG DB_HOST
+ARG CRAWLER_URL
+ARG JWT_SECRET
 
 # Set environment variables from build arguments
+# Comment ENVs for .env build
 ENV DB_NAME $DB_NAME
 ENV DB_USER $DB_USER
 ENV DB_PASSWORD $DB_PASSWORD
 ENV DB_PORT $DB_PORT
 ENV DB_HOST $DB_HOST
+ENV CRAWLER_URL $CRAWLER_URL
+ENV JWT_SECRET $JWT_SECRET
 
 # Install dependencies
 COPY package.json package-lock.json ./

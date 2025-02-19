@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './env';
 
 export interface User {
     id: number;
@@ -6,26 +7,12 @@ export interface User {
     password: string;
 }
 
-const requiredEnvVars = [
-    'DB_USER',
-    'DB_PASSWORD',
-    'DB_NAME',
-    'DB_HOST',
-    'DB_PORT',
-];
-const missingVars = requiredEnvVars.filter((key) => !process.env[key]);
-
-if (missingVars.length > 0) {
-    console.error(`Missing environment variables: ${missingVars.join(', ')}`);
-    throw new Error('Database configuration error');
-}
-
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: Number(process.env.DB_PORT),
+    user: DB_USER,
+    host: DB_HOST,
+    database: DB_NAME,
+    password: DB_PASSWORD,
+    port: Number(DB_PORT),
 });
 
 export async function openDB() {
