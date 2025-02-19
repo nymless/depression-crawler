@@ -1,8 +1,22 @@
 services:
     crawler-vk:
         build: ./crawler-vk
-        environment:
-            DATABASE_URL: ${DB_URL}
+        env_file: ./.env
         ports:
-            - "8000:8000"
+            - 8000:8000
+        restart: always
+    front-next:
+        build:
+            context: ./front-next
+            args:
+                DB_NAME: ${DB_NAME}
+                DB_USER: ${DB_USER}
+                DB_PASSWORD: ${DB_PASSWORD}
+                DB_PORT: ${DB_PORT}
+                DB_HOST: ${DB_HOST}
+        env_file: ./.env
+        environment:
+            CRAWLER_URL: http://crawler-vk:8000
+        ports:
+            - 3000:3000
         restart: always
