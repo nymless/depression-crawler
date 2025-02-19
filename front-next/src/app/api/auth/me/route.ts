@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     }
 
     const privateKey = process.env.JWT_SECRET;
-    
+
     if (!privateKey) {
         console.error('JWT_SECRET is not defined in environment variables');
         return new Response(JSON.stringify({ error: 'Server login error' }), {

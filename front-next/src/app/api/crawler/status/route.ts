@@ -2,8 +2,8 @@ export async function GET() {
     const crawler_url = process.env.CRAWLER_URL;
 
     if (!crawler_url) {
-        console.error("CRAWLER_URL is not defined in environment variables");
-        return new Response(JSON.stringify({ error: "Server login error" }), {
+        console.error('CRAWLER_URL is not defined in environment variables');
+        return new Response(JSON.stringify({ error: 'Server login error' }), {
             status: 500,
         });
     }

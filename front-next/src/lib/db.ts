@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Pool } from 'pg';
 
 export interface User {
     id: number;
@@ -7,17 +7,17 @@ export interface User {
 }
 
 const requiredEnvVars = [
-    "DB_USER",
-    "DB_PASSWORD",
-    "DB_NAME",
-    "DB_HOST",
-    "DB_PORT",
+    'DB_USER',
+    'DB_PASSWORD',
+    'DB_NAME',
+    'DB_HOST',
+    'DB_PORT',
 ];
 const missingVars = requiredEnvVars.filter((key) => !process.env[key]);
 
 if (missingVars.length > 0) {
-    console.error(`Missing environment variables: ${missingVars.join(", ")}`);
-    throw new Error("Database configuration error");
+    console.error(`Missing environment variables: ${missingVars.join(', ')}`);
+    throw new Error('Database configuration error');
 }
 
 const pool = new Pool({
@@ -48,8 +48,8 @@ if (!dbInitialized) {
     try {
         await initDB();
         dbInitialized = true;
-        console.log("Database initialized successfully!");
+        console.log('Database initialized successfully!');
     } catch (error) {
-        console.error("Database initialization failed:", error);
+        console.error('Database initialization failed:', error);
     }
 }
