@@ -25,7 +25,10 @@ export default function Home() {
         const res = await fetch('/api/auth/logout', {
             method: 'POST',
         });
-        if (res.ok) setUser(null);
+        if (res.ok) {
+            setUser(null);
+            router.refresh();
+        }
     };
 
     return (

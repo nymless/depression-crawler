@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function CrawlerPage() {
@@ -66,6 +67,9 @@ export default function CrawlerPage() {
             >
                 Stop
             </button>
+            <Link href={'/'} className="text-center hover:underline">
+                Home
+            </Link>
         </div>
     );
 }

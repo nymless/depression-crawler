@@ -15,8 +15,10 @@ export default function LoginPage() {
             body: JSON.stringify({ username, password }),
         });
 
-        if (res.ok) router.push('/');
-        else alert('Invalid credentials');
+        if (res.ok) {
+            router.push('/');
+            router.refresh();
+        } else alert('Invalid credentials');
     };
 
     return (
