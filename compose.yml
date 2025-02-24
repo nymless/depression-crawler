@@ -1,21 +1,24 @@
 services:
     crawler-vk:
+        image: nymless/crawler-vk
         build: ./crawler-vk
         env_file: ./.env
         ports:
             - 8000:8000
         restart: always
     front-next:
+        image: nymless/front-next
         build:
             context: ./front-next
+            dockerfile: Dockerfile.compose
             args:
                 DB_NAME: ${DB_NAME}
                 DB_USER: ${DB_USER}
                 DB_PASSWORD: ${DB_PASSWORD}
                 DB_PORT: ${DB_PORT}
                 DB_HOST: ${DB_HOST}
-                CRAWLER_URL: http://crawler-vk:8000
                 JWT_SECRET: ${JWT_SECRET}
+                CRAWLER_URL: http://crawler-vk:8000
         env_file: ./.env
         environment:
             CRAWLER_URL: http://crawler-vk:8000

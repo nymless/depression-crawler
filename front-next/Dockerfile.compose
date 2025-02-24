@@ -3,6 +3,25 @@ FROM node:23-alpine AS builder
 
 WORKDIR /app
 
+# Next.js requires environment variables during the build to generate static pages.
+# When using Docker Compose, you can pass these variables to the build stage using build arguments.
+ARG DB_NAME
+ARG DB_USER
+ARG DB_PASSWORD
+ARG DB_PORT
+ARG DB_HOST
+ARG CRAWLER_URL
+ARG JWT_SECRET
+
+# Set environment variables from build arguments
+ENV DB_NAME=$DB_NAME
+ENV DB_USER=$DB_USER
+ENV DB_PASSWORD=$DB_PASSWORD
+ENV DB_PORT=$DB_PORT
+ENV DB_HOST=$DB_HOST
+ENV CRAWLER_URL=$CRAWLER_URL
+ENV JWT_SECRET=$JWT_SECRET
+
 # Install dependencies
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -11,9 +30,8 @@ COPY . .
 # Create a standalone build with automatically copying traced files
 RUN npm run build
 
-# Next.js requires environment variables during the build to generate static pages.
-# The .env file is needed only during the build stage.
-# Ensure it is not included in the final container.
+# The .env file is intentionally not included in .dockerignore.
+# Ensure that the .env file is not included in the final container, even if it exists in the project root.
 RUN rm -f /app/.next/standalone/.env
 
 # Final build stage
