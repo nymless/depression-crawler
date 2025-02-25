@@ -4,7 +4,7 @@ services:
         build: ./crawler-vk
         env_file: ./.env
         ports:
-            - 8000:8000
+            - 127.0.0.1:8000:8000
         restart: always
     front-next:
         image: nymless/front-next
@@ -23,5 +23,5 @@ services:
         environment:
             CRAWLER_URL: http://crawler-vk:8000
         ports:
-            - 3000:3000
+            - 127.0.0.1:3000:3000
         restart: always

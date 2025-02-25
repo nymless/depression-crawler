@@ -8,4 +8,4 @@ build:
 
 .PHONE: run
 run:
-	docker run --rm -it --env-file=.env -p=8000:8000 --name=crawler-vk nymless/crawler-vk
+	docker run --rm -it --env-file=.env -p=127.0.0.1:8000:8000 --name=crawler-vk nymless/crawler-vk
