@@ -39,9 +39,9 @@ async def global_exception_handler(request: Request, e: Exception):
 
 def run_crawler():
     """Starts the crawler loop."""
-    crawler.running = True
+    crawler.status["running"] = True
     log.info("Crawler started")
-    while crawler.running:
+    while crawler.status["running"]:
         crawler.get_random_posts(3)
     log.info("Crawler stopped")
 
@@ -49,7 +49,7 @@ def run_crawler():
 @app.post("/start")
 def start_crawler(background_tasks: BackgroundTasks):
     """Starts the crawler in a background task."""
-    if crawler.running:
+    if crawler.status["running"]:
         return {"status": "already running"}
     background_tasks.add_task(run_crawler)
     log.info("Crawler start command received")
@@ -59,12 +59,12 @@ def start_crawler(background_tasks: BackgroundTasks):
 @app.post("/stop")
 def stop_crawler():
     """Stops the crawler and closes the database connection."""
-    crawler.running = False
-    log.info("Crawler stop command received, database connection closed")
+    crawler.reset_status()
+    log.info("Crawler stop command received")
     return {"status": "stopping"}
 
 
 @app.get("/status")
 def get_status():
     """Returns the current status of the crawler."""
-    return {"running": crawler.running}
+    return crawler.status

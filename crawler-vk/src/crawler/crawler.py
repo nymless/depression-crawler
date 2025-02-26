@@ -1,7 +1,7 @@
 import logging
 import random
 from datetime import UTC, datetime
-from typing import cast
+from typing import TypedDict, cast
 
 from src.db.dal import DAL
 from src.service.service import Service
@@ -11,17 +11,32 @@ from src.vk_types.vk_api_objects.post import Post
 log = logging.getLogger(__name__)
 
 
+class CrawlerStatus(TypedDict):
+    running: bool
+    requests_count: int
+    saved_posts_count: int
+
+
 class Crawler:
     """Crawler for collecting posts from VK."""
 
-    # Flag to indicate whether the crawler is running
-    running: bool = False
+    # Crawler status
+    status = CrawlerStatus(
+        running=False,
+        requests_count=0,
+        saved_posts_count=0,
+    )
 
     def __init__(self, service: Service, dal: DAL) -> None:
         """Initialize the crawler with the given service and data access
         layer."""
         self.service = service
         self.dal = dal
+
+    def reset_status(self):
+        self.status["running"] = False
+        self.status["requests_count"] = 0
+        self.status["saved_posts_count"] = 0
 
     def _get_random_letters(self, n: int) -> str:
         """Generate a string of N random letters from the Russian alphabet."""
@@ -52,9 +67,11 @@ class Crawler:
         response = self.service.search_posts_by_query(
             query=letters, count=count
         )
+        self.status["requests_count"] += 1
         if response.is_success:
             response.data = cast(NewsfeedSearch, response.data)
             posts = response.data["response"]["items"]
             for post in posts:
                 self._save_post(response.request_id, post)
+                self.status["saved_posts_count"] += 1
                 log.info(f"Post {post['owner_id']}_{post['id']} processed")
