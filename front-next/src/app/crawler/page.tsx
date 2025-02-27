@@ -1,26 +1,42 @@
 'use client';
+import type { CrawlerStatus, CrawlerSummary } from '@/types/crawler';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import СrawlerSummary from './components/СrawlerSummary';
+import usePolling from './hooks/usePolling';
+
+const POLLING_INTERVAL = 2000;
 
 export default function CrawlerPage() {
-    const [status, setStatus] = useState<'Running' | 'Stopped' | null>(null);
+    const [running, setRunning] = useState<'Running' | 'Stopped' | null>(null);
+    const [summary, setSummary] = useState<CrawlerSummary | null>(null);
     const [loading, setLoading] = useState(false);
+    const [isPolling, setIsPolling] = useState(false);
 
-    const fetchStatus = async () => {
+    const fetchStatus = useCallback(async () => {
         try {
-            const res = await fetch('/api/crawler/status');
-            const data = await res.json();
-            setStatus(data.running ? 'Running' : 'Stopped');
+            const res = await fetch('/api/crawler/status', {
+                cache: 'no-store',
+            });
+            const status: CrawlerStatus = await res.json();
+            setRunning(status.running ? 'Running' : 'Stopped');
+            setSummary({
+                requests_count: status.requests_count,
+                saved_posts_count: status.saved_posts_count,
+            });
         } catch (error) {
             console.error('Error fetching status:', error);
         }
-    };
+    }, []);
+
+    usePolling(fetchStatus, isPolling, POLLING_INTERVAL);
 
     const handleStart = async () => {
         setLoading(true);
         try {
             await fetch('/api/crawler/start', { method: 'POST' });
-            fetchStatus();
+            await fetchStatus();
+            setIsPolling(true);
         } catch (error) {
             console.error('Error starting crawler:', error);
         } finally {
@@ -32,7 +48,8 @@ export default function CrawlerPage() {
         setLoading(true);
         try {
             await fetch('/api/crawler/stop', { method: 'POST' });
-            fetchStatus();
+            setIsPolling(false);
+            await fetchStatus();
         } catch (error) {
             console.error('Error stopping crawler:', error);
         } finally {
@@ -42,15 +59,15 @@ export default function CrawlerPage() {
 
     useEffect(() => {
         fetchStatus();
-    }, []);
+    }, [fetchStatus]);
 
     return (
         <div className="flex flex-col gap-5">
             <h1 className="text-center text-xl">Crawler Control</h1>
             <p className="text-center">
                 Status:{' '}
-                <span className={status === 'Running' ? 'text-green-600' : ''}>
-                    {status ?? 'Loading...'}
+                <span className={running === 'Running' ? 'text-green-600' : ''}>
+                    {running ?? 'Loading...'}
                 </span>
             </p>
             <button
@@ -70,6 +87,7 @@ export default function CrawlerPage() {
             <Link href={'/'} className="text-center hover:underline">
                 Home
             </Link>
+            <СrawlerSummary summary={summary} />
         </div>
     );
 }
