@@ -16,6 +16,7 @@ class Crawler:
     """
     Crawler for collecting posts from VK.
     """
+
     POSTS_PER_REQUEST = 10
 
     def __init__(self, service: Service, dal: DAL) -> None:
@@ -61,7 +62,11 @@ class Crawler:
         if response.is_success:
             response.data = cast(NewsfeedSearch, response.data)
             posts = response.data["response"]["items"]
+            texts = []
             for post in posts:
+                if post["text"][:20] in texts:
+                    continue
+                texts.append(post["text"][:20])
                 self._save_post(response.request_id, post)
                 log.info(f"Post {post['owner_id']}_{post['id']} processed")
 
