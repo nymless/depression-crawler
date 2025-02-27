@@ -9,6 +9,8 @@ from src.crawler.crawler import Crawler
 from src.db.dal import DAL
 from src.service.service import Service
 
+app = FastAPI()
+
 # Logging configuration
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
@@ -25,8 +27,6 @@ dal = DAL()
 service = Service(client, dal)
 crawler = Crawler(service, dal)
 
-app = FastAPI()
-
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, e: Exception):
@@ -37,34 +37,23 @@ async def global_exception_handler(request: Request, e: Exception):
     )
 
 
-def run_crawler():
-    """Starts the crawler loop."""
-    crawler.status["running"] = True
-    log.info("Crawler started")
-    while crawler.status["running"]:
-        crawler.get_random_posts(3)
-    log.info("Crawler stopped")
-
-
 @app.post("/start")
 def start_crawler(background_tasks: BackgroundTasks):
-    """Starts the crawler in a background task."""
-    if crawler.status["running"]:
+    if crawler.status_manager.get_status()["running"]:
         return {"status": "already running"}
-    background_tasks.add_task(run_crawler)
+    background_tasks.add_task(crawler.run)
     log.info("Crawler start command received")
     return {"status": "started"}
 
 
 @app.post("/stop")
 def stop_crawler():
-    """Stops the crawler and closes the database connection."""
-    crawler.reset_status()
+    crawler.status_manager.stop()
     log.info("Crawler stop command received")
     return {"status": "stopping"}
 
 
 @app.get("/status")
 def get_status():
-    """Returns the current status of the crawler."""
-    return crawler.status
+    status = crawler.status_manager.get_status()
+    return status
