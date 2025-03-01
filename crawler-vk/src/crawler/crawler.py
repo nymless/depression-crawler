@@ -64,6 +64,13 @@ class Crawler:
             posts = response.data["response"]["items"]
             texts = []
             for post in posts:
+                """
+                A 3-letters search may return reposts of the same post
+                from diffent groups or users without any markers.
+                Therefore, we check the first 20 characters of the text within
+                one request to ensure uniqueness, and skip saving duplicates
+                to the database.
+                """
                 if post["text"][:20] in texts:
                     continue
                 texts.append(post["text"][:20])
