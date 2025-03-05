@@ -1,6 +1,5 @@
 'use client';
 import type { CrawlerStatus, CrawlerSummary } from '@/types/crawler';
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import СrawlerSummary from './components/СrawlerSummary';
 import usePolling from './hooks/usePolling';
@@ -62,9 +61,9 @@ export default function CrawlerPage() {
     }, [fetchStatus]);
 
     return (
-        <div className="flex flex-col gap-5">
-            <h1 className="text-center text-xl">Crawler Control</h1>
-            <p className="text-center">
+        <div className="flex flex-col gap-6 text-center">
+            <h1 className="font-bold text-2xl">Crawler Control</h1>
+            <p className="">
                 Status:{' '}
                 <span className={running === 'Running' ? 'text-green-600' : ''}>
                     {running ?? 'Loading...'}
@@ -84,9 +83,6 @@ export default function CrawlerPage() {
             >
                 Stop
             </button>
-            <Link href={'/'} className="text-center hover:underline">
-                Home
-            </Link>
             <СrawlerSummary summary={summary} />
         </div>
     );

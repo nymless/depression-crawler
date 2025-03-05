@@ -1,4 +1,5 @@
 'use client';
+import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
@@ -6,6 +7,7 @@ export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
+    const { setUser } = useAuth();
 
     const handleLogin = async (event: FormEvent) => {
         event.preventDefault();
@@ -16,32 +18,34 @@ export default function LoginPage() {
         });
 
         if (res.ok) {
+            setUser({ username });
             router.push('/');
-            router.refresh();
         } else alert('Invalid credentials');
     };
 
     return (
-        <div className="flex flex-col gap-5">
-            <h1 className="text-center text-xl">Login</h1>
+        <div className="flex flex-col gap-6 text-center">
+            <h1 className="font-bold text-2xl">Login</h1>
             <form onSubmit={handleLogin} className="flex gap-2">
                 <input
                     type="text"
                     placeholder="Username"
+                    autoComplete="username"
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                     required
-                    className="bg-white text-black p-1"
+                    className="p-1"
                 />
                 <input
                     type="password"
                     placeholder="Password"
+                    autoComplete="current-password"
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     required
-                    className="bg-white text-black p-1"
+                    className="p-1"
                 />
-                <button type="submit" className="hover:text-gray-500">
+                <button type="submit" className="hover:underline">
                     Login
                 </button>
             </form>
