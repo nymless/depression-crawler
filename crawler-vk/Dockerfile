@@ -13,5 +13,5 @@ RUN uv sync --frozen
 # Describe which port the application is listening on
 EXPOSE 8000
 
-# Run uvicorn server on localhost:8000
+# Run uvicorn server on 0.0.0.0:8000
 CMD ["uv", "run", "uvicorn", "src.api.api:app", "--host", "0.0.0.0", "--port", "8000"]
