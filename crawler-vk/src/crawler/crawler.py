@@ -46,7 +46,7 @@ class Crawler:
             # For now, just reset status manager
             self.status_manager.reset()
 
-        except Exception:
-            log.exception("Error during data processing")
+        except Exception as e:
+            log.exception("Error during data processing", exc_info=e)
             self.status_manager.reset()
             raise
