@@ -14,9 +14,7 @@ export default function CrawlerPage() {
 
     const fetchStatus = useCallback(async () => {
         try {
-            const res = await fetch('/api/crawler/status', {
-                cache: 'no-store',
-            });
+            const res = await fetch('/api/crawler/status');
             const status: CrawlerStatus = await res.json();
             setRunning(status.running ? 'Running' : 'Stopped');
             setSummary({
