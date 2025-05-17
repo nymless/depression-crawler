@@ -5,7 +5,8 @@ from crawler.crawler import Crawler
 from db.dal import DAL
 from service.service import Service
 
-if __name__ == "__main__":
+
+def main():
     # Logging configuration
     logging.basicConfig(
         level=logging.INFO,
@@ -24,3 +25,7 @@ if __name__ == "__main__":
     for _ in range(10):
         crawler.get_random_posts(3)
     log.info("Crawler stopped")
+
+
+if __name__ == "__main__":
+    main()
