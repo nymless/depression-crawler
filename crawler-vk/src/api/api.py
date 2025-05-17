@@ -1,12 +1,15 @@
 import logging
+import os
+from datetime import datetime
+from typing import List
 
+from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from vk_data_collector import create_collector
 
-from src.client.client import Client
 from src.crawler.crawler import Crawler
-from src.db.dal import DAL
-from src.service.service import Service
 
 app = FastAPI()
 
@@ -18,10 +21,15 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # Initialize services
-client = Client()
-dal = DAL()
-service = Service(client, dal)
-crawler = Crawler(service, dal)
+load_dotenv()
+token = os.getenv("SERVICE_TOKEN")
+collector = create_collector(token)
+crawler = Crawler(collector)
+
+
+class CollectDataRequest(BaseModel):
+    groups: List[str]
+    target_date: str
 
 
 @app.exception_handler(Exception)
@@ -33,23 +41,49 @@ async def global_exception_handler(request: Request, e: Exception):
     )
 
 
-@app.post("/start")
-def start_crawler(background_tasks: BackgroundTasks):
-    if crawler.status_manager.get_status()["running"]:
-        return {"status": "already running"}
-    background_tasks.add_task(crawler.run)
-    log.info("Crawler start command received")
-    return {"status": "started"}
+@app.get("/status")
+def get_status():
+    """Get the current status of the crawler."""
+    status = crawler.status_manager.get_status()
+    return status
 
 
 @app.post("/stop")
 def stop_crawler():
-    crawler.status_manager.stop()
-    log.info("Crawler stop command received")
-    return {"status": "stopping"}
+    """Request the crawler to stop its current work."""
+    crawler.status_manager.request_stop()
+    log.info("Crawler stop requested")
+    return {"status": "stop_requested"}
 
 
-@app.get("/status")
-def get_status():
-    status = crawler.status_manager.get_status()
-    return status
+@app.post("/collect")
+def collect_data(
+    request: CollectDataRequest, background_tasks: BackgroundTasks
+):
+    """
+    Start data collection for specified groups up to target date.
+    """
+    try:
+        # Validate date format
+        datetime.strptime(request.target_date, "%Y-%m-%d")
+    except ValueError:
+        return {"error": "Invalid date format. Use YYYY-MM-DD"}
+
+    if not request.groups:
+        return {"error": "No groups specified"}
+
+    # Check if crawler is already working
+    current_status = crawler.status_manager.get_status()
+    if current_status["state"] != "idle":
+        return {
+            "error": f"Crawler is already working: {current_status['state']}",
+            "current_status": current_status,
+        }
+
+    background_tasks.add_task(
+        crawler.collect_data,
+        request.groups,
+        request.target_date,
+    )
+
+    return {"status": "ok"}

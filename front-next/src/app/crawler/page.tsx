@@ -1,26 +1,33 @@
 'use client';
-import type { CrawlerStatus, CrawlerSummary } from '@/types/crawler';
+import type {
+    CollectDataRequest,
+    CollectDataResponse,
+    CrawlerStatus as CrawlerStatusType,
+} from '@/types/crawler';
 import { useCallback, useEffect, useState } from 'react';
-import СrawlerSummary from './components/СrawlerSummary';
 import usePolling from './hooks/usePolling';
+import CrawlerStatus from './components/CrawlerStatus';
+import CrawlerForm from './components/CrawlerForm';
+import StopButton from './components/StopButton';
 
 const POLLING_INTERVAL = 2000;
 
 export default function CrawlerPage() {
-    const [running, setRunning] = useState<'Running' | 'Stopped' | null>(null);
-    const [summary, setSummary] = useState<CrawlerSummary | null>(null);
+    const [status, setStatus] = useState<CrawlerStatusType | null>(null);
     const [loading, setLoading] = useState(false);
     const [isPolling, setIsPolling] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchStatus = useCallback(async () => {
         try {
             const res = await fetch('/api/crawler/status');
-            const status: CrawlerStatus = await res.json();
-            setRunning(status.running ? 'Running' : 'Stopped');
-            setSummary({
-                requests_count: status.requests_count,
-                saved_posts_count: status.saved_posts_count,
-            });
+            const newStatus: CrawlerStatusType = await res.json();
+            setStatus(newStatus);
+
+            // Stop polling if crawler is idle
+            if (newStatus.state === 'idle') {
+                setIsPolling(false);
+            }
         } catch (error) {
             console.error('Error fetching status:', error);
         }
@@ -28,27 +35,40 @@ export default function CrawlerPage() {
 
     usePolling(fetchStatus, isPolling, POLLING_INTERVAL);
 
-    const handleStart = async () => {
+    const handleStop = async () => {
         setLoading(true);
         try {
-            await fetch('/api/crawler/start', { method: 'POST' });
+            await fetch('/api/crawler/stop', { method: 'POST' });
             await fetchStatus();
-            setIsPolling(true);
         } catch (error) {
-            console.error('Error starting crawler:', error);
+            console.error('Error stopping crawler:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleStop = async () => {
+    const handleCollect = async (request: CollectDataRequest) => {
         setLoading(true);
+        setError(null);
+
         try {
-            await fetch('/api/crawler/stop', { method: 'POST' });
-            setIsPolling(false);
-            await fetchStatus();
+            const res = await fetch('/api/crawler/collect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(request),
+            });
+
+            const data: CollectDataResponse = await res.json();
+            if (data.error) {
+                setError(data.error);
+            } else {
+                setIsPolling(true);
+            }
         } catch (error) {
-            console.error('Error stopping crawler:', error);
+            console.error('Error collecting data:', error);
+            setError('Failed to start data collection');
         } finally {
             setLoading(false);
         }
@@ -58,30 +78,24 @@ export default function CrawlerPage() {
         fetchStatus();
     }, [fetchStatus]);
 
+    const isWorking = status?.state !== 'idle';
+
     return (
         <div className="flex flex-col gap-6 text-center">
             <h1 className="font-bold text-2xl">Crawler Control</h1>
-            <p className="">
-                Status:{' '}
-                <span className={running === 'Running' ? 'text-green-600' : ''}>
-                    {running ?? 'Loading...'}
-                </span>
-            </p>
-            <button
-                onClick={handleStart}
-                disabled={loading}
-                className="hover:text-gray-500"
-            >
-                Start
-            </button>
-            <button
-                onClick={handleStop}
-                disabled={loading}
-                className="hover:text-gray-500"
-            >
-                Stop
-            </button>
-            <СrawlerSummary summary={summary} />
+
+            <CrawlerStatus status={status} />
+
+            {isWorking && (
+                <StopButton onClick={handleStop} disabled={loading} />
+            )}
+
+            <CrawlerForm
+                onSubmit={handleCollect}
+                loading={loading}
+                isWorking={isWorking}
+                error={error}
+            />
         </div>
     );
 }
