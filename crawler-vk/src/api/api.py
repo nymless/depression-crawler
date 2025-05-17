@@ -1,5 +1,4 @@
 import logging
-import os
 
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -12,11 +11,8 @@ from src.service.service import Service
 app = FastAPI()
 
 # Logging configuration
-os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
-    filename="logs/crawler.log",
-    filemode="a",
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
 )
 log = logging.getLogger(__name__)
