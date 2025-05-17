@@ -15,7 +15,6 @@ class CrawlerStatus(TypedDict):
     state: CrawlerState
     current_group: str | None  # current group being processed
     progress: int  # progress in percent
-    error: str | None  # error, if any
     should_stop: bool  # flag to stop
 
 
@@ -30,7 +29,6 @@ class CrawlerStatusManager:
             "state": "idle",
             "current_group": None,
             "progress": 0,
-            "error": None,
             "should_stop": False,
         }
 
@@ -41,7 +39,6 @@ class CrawlerStatusManager:
             # Reset progress when changing state
             self._status["progress"] = 0
             # Clear error when changing state
-            self._status["error"] = None
 
     def set_current_group(self, group: str | None) -> None:
         """Set the current group being processed."""
@@ -52,11 +49,6 @@ class CrawlerStatusManager:
         """Set the progress percentage (0-100)."""
         with self._lock:
             self._status["progress"] = max(0, min(100, progress))
-
-    def set_error(self, error: str | None) -> None:
-        """Set an error message or clear it."""
-        with self._lock:
-            self._status["error"] = error
 
     def request_stop(self) -> None:
         """Request the crawler to stop."""
@@ -85,6 +77,5 @@ class CrawlerStatusManager:
                 "state": "idle",
                 "current_group": None,
                 "progress": 0,
-                "error": None,
                 "should_stop": False,
             }

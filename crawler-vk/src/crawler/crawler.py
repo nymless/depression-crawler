@@ -43,15 +43,10 @@ class Crawler:
             )
 
             # TODO: Add preprocessing, inference and saving results
-            # For now, just set to idle when done
-            self.status_manager.set_state("idle")
-            self.status_manager.set_current_group(None)
-            self.status_manager.set_progress(100)
-            self.status_manager.reset()  # Complete reset of all status fields
+            # For now, just reset status manager
+            self.status_manager.reset()
 
-        except Exception as e:
+        except Exception:
             log.exception("Error during data processing")
-            self.status_manager.set_error(str(e))
-            self.status_manager.set_state("idle")
-            self.status_manager.reset()  # Reset state even in case of error
+            self.status_manager.reset()
             raise
