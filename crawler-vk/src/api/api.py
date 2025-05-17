@@ -81,7 +81,7 @@ def collect_data(
         }
 
     background_tasks.add_task(
-        crawler.collect_data,
+        crawler.process_data,
         request.groups,
         request.target_date,
     )

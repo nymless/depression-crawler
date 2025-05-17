@@ -25,7 +25,7 @@ def main():
 
     # groups = ["group_name"]
     # target_date = "2025-01-01"
-    # crawler.collect_data(groups, target_date)
+    # crawler.process_data(groups, target_date)
 
 
 if __name__ == "__main__":
