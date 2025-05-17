@@ -1,7 +1,32 @@
+export type CrawlerState =
+    | 'idle' // waiting
+    | 'collecting_posts' // collecting posts
+    | 'collecting_comments' // collecting comments
+    | 'preprocessing' // preprocessing data
+    | 'inference' // inference
+    | 'saving_results'; // saving results
+
 export type CrawlerStatus = {
-    running: boolean;
-    requests_count: number;
-    saved_posts_count: number;
+    state: CrawlerState;
+    current_group: string | null;
+    progress: number;
+    error: string | null;
+    should_stop: boolean;
 };
 
-export type CrawlerSummary = Omit<CrawlerStatus, 'running'>;
+export type CollectDataRequest = {
+    groups: string[];
+    target_date: string;
+};
+
+export type CollectDataResponse = {
+    status: string;
+    groups: string[];
+    target_date: string;
+    error?: string;
+    current_status?: CrawlerStatus;
+};
+
+export type StopResponse = {
+    status: string;
+};

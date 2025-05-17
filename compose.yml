@@ -1,13 +1,19 @@
 services:
     crawler-vk:
         image: nymless/crawler-vk
-        build: ./crawler-vk
+        build:
+            context: ./crawler-vk
+            dockerfile: Dockerfile
         env_file: ./.env
         extra_hosts:
             - host.docker.internal:host-gateway
         ports:
             - 127.0.0.1:8000:8000
         restart: always
+        environment:
+            - CRAWLER_DATA_DIR=/app/data
+        volumes:
+            - ./data:/app/data
     front-next:
         image: nymless/front-next
         build:
