@@ -1,9 +1,7 @@
 'use client';
+import { User } from '@/app/(server)/api/auth/login/route';
+import type { AuthMeResponse } from '@/app/(server)/api/auth/me/route';
 import { createContext, useContext, useEffect, useState } from 'react';
-
-interface User {
-    username: string;
-}
 
 interface AuthContextType {
     user: User | null;
@@ -18,7 +16,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         fetch('/api/auth/me')
             .then((res) => res.json())
-            .then((data: { authenticated: boolean; user?: User }) => {
+            .then((data: AuthMeResponse) => {
                 if (data.authenticated) setUser(data.user ?? null);
             });
     }, []);

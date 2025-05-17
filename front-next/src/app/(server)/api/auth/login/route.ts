@@ -1,9 +1,9 @@
-import { openDB, User } from '@/lib/db';
+import { openDB, UserDB } from '@/lib/db';
 import { JWT_SECRET } from '@/lib/env';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-export interface UserToken {
+export interface User {
     id: number;
     username: string;
 }
@@ -15,16 +15,16 @@ export async function POST(request: Request) {
     const result = await db.query('SELECT * FROM users WHERE username = $1', [
         username,
     ]);
-    const user: User | undefined = result.rows[0];
+    const userBD: UserDB | undefined = result.rows[0];
 
-    if (!(user && (await bcrypt.compare(password, user.password)))) {
+    if (!(userBD && (await bcrypt.compare(password, userBD.password)))) {
         return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
             status: 401,
         });
     }
 
-    const userToken: UserToken = { id: user.id, username: user.username };
-    const token = jwt.sign(userToken, JWT_SECRET, { expiresIn: '1h' });
+    const user: User = { id: userBD.id, username: userBD.username };
+    const token = jwt.sign(user, JWT_SECRET, { expiresIn: '1h' });
 
     // Use a non-Secure cookie in development to avoid issues over HTTP,
     // and a Secure cookie in production for safer transmission over HTTPS.

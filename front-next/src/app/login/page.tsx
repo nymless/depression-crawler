@@ -2,6 +2,7 @@
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
+import { AuthMeResponse } from '../(server)/api/auth/me/route';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -16,10 +17,13 @@ export default function LoginPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password }),
         });
-
         if (res.ok) {
-            setUser({ username });
-            router.push('/');
+            const authRes = await fetch('/api/auth/me');
+            const data: AuthMeResponse = await authRes.json();
+            if (data.authenticated) {
+                setUser(data.user ?? null);
+                router.push('/');
+            }
         } else alert('Invalid credentials');
     };
 

@@ -1,9 +1,10 @@
 import { JWT_SECRET } from '@/lib/env';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+import { User } from '../login/route';
 
-interface AuthMeResponse {
+export interface AuthMeResponse {
     authenticated: boolean;
-    user?: string | JwtPayload;
+    user?: User;
 }
 
 export async function GET(request: Request) {
@@ -17,9 +18,9 @@ export async function GET(request: Request) {
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = jwt.verify(token, JWT_SECRET) as User;
         response.authenticated = true;
-        response.user = decoded;
+        response.user = user;
         return new Response(JSON.stringify(response), { status: 200 });
     } catch {
         return new Response(JSON.stringify(response), {

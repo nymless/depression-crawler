@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './env';
 
-export interface User {
+export interface UserDB {
     id: number;
     username: string;
     password: string;
