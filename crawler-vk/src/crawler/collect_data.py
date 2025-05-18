@@ -1,9 +1,10 @@
 import logging
 import os
-from typing import List
+from typing import List, Tuple
+
+from vk_data_collector import Collector
 
 from src.crawler.status_manager import CrawlerStatusManager
-from vk_data_collector import Collector
 
 log = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ def collect_data(
     base_dir: str,
     collector: Collector,
     status_manager: CrawlerStatusManager,
-) -> None:
+) -> Tuple[List[str], List[str]]:
     """
     Collect posts and comments from specified VK groups up to target date.
 
@@ -35,6 +36,9 @@ def collect_data(
     # Reset stop flag at the start
     status_manager.reset_stop_flag()
 
+    posts_files = []
+    comments_files = []
+
     total_groups = len(groups)
     for i, group in enumerate(groups, 1):
         # Check if we should stop
@@ -48,10 +52,14 @@ def collect_data(
         status_manager.set_state("collecting_posts")
         status_manager.set_progress(int((i - 1) * 100 / total_groups))
         log.info(f"Collecting posts for group: {group}")
+        # Note: Even though collector.collect_posts_to_date supports multiple
+        # groups, we intentionally pass only one group at a time to enable
+        # process interruption between groups if requested
         saved_files = collector.collect_posts_to_date(
             [group], target_date, posts_dir
         )
         log.info(f"Collected posts saved to: {saved_files}")
+        posts_files.extend(saved_files)
 
         # Check if we should stop
         if status_manager.should_stop():
@@ -62,5 +70,10 @@ def collect_data(
         status_manager.set_state("collecting_comments")
         status_manager.set_progress(int((i - 0.5) * 100 / total_groups))
         log.info(f"Collecting comments for group: {group}")
-        collector.collect_comments_for_posts(saved_files, comments_dir)
-        log.info("Comments collection completed")
+        saved_files = collector.collect_comments_for_posts(
+            saved_files, comments_dir
+        )
+        log.info(f"Collected posts saved to: {saved_files}")
+        comments_files.extend(saved_files)
+
+    return posts_files, comments_files

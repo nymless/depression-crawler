@@ -34,7 +34,7 @@ class Crawler:
             target_date: Target date in YYYY-MM-DD format
         """
         try:
-            collect_data(
+            posts_files, comments_files = collect_data(
                 groups,
                 target_date,
                 self.base_dir,
