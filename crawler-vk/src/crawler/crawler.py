@@ -7,9 +7,11 @@ from vk_data_collector import Collector
 
 from src.crawler.collect_data import collect_data
 from src.crawler.predict_depression import predict_depression
-from src.crawler.prediction_handler import DepressionDataHandler
+from src.crawler.prediction_handler.prediction_handler import (
+    DepressionDataHandler,
+)
 from src.crawler.preprocess_data import preprocess_data
-from src.crawler.status_manager import CrawlerStatusManager
+from src.crawler.status_manager.status_manager import CrawlerStatusManager
 from src.db.db import get_db_connection
 
 log = logging.getLogger(__name__)

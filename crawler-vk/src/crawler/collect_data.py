@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 from vk_data_collector import Collector
 
-from src.crawler.status_manager import CrawlerStatusManager
+from src.crawler.status_manager.status_manager import CrawlerStatusManager
 
 log = logging.getLogger(__name__)
 
