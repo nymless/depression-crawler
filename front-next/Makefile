@@ -1,4 +1,5 @@
 .PHONY: install dev build run
+
 install:
 	npm install
 
