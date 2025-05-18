@@ -81,9 +81,16 @@ def collect_data(
         }
 
     background_tasks.add_task(
-        crawler.process_data,
+        crawler.run_pipeline,
         request.groups,
         request.target_date,
     )
 
+    return {"status": "ok"}
+
+
+@app.post("/reset")
+async def reset_status():
+    """Reset crawler status."""
+    crawler.status_manager.reset()
     return {"status": "ok"}

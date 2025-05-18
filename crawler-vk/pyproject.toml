@@ -12,6 +12,12 @@ dependencies = [
     "psycopg2-binary (>=2.9.10,<3.0.0)",
     "fastapi>=0.115.8",
     "vk-data-collector>=0.2.4",
+    "pandas>=2.2.3",
+    "natasha>=1.6.0",
+    "nltk>=3.9.1",
+    "scikit-learn>=1.6.1",
+    "gensim>=4.3.3",
+    "wget>=3.2",
 ]
 
 [build-system]

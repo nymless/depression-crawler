@@ -1,0 +1,39 @@
+import json
+import logging
+
+import numpy as np
+import pandas as pd
+
+from src.crawler.model_loader.model_loader import ModelLoader
+from src.crawler.utils.config import CLASSIFIER_MODEL_PATH
+
+log = logging.getLogger(__name__)
+
+
+def predict_depression(data: pd.DataFrame) -> None:
+    """Predict depression for posts and comments.
+    Modifies input DataFrame by adding depression predictions.
+
+    Args:
+        data: DataFrame with embeddings and features to predict on
+    """
+    # Prepare features list
+    with open(
+        CLASSIFIER_MODEL_PATH.joinpath("selected_features.json"), "r"
+    ) as f:
+        selected_features = json.load(f)
+
+    # Prepare embeddings and features
+    embeddings = np.array(data["embeddings"].to_list())
+    features = data[selected_features].to_numpy()
+
+    # Combine embeddings and features
+    combined = np.hstack((embeddings, features))
+
+    # Initialize and use model
+    model_loader = ModelLoader(models_dir=CLASSIFIER_MODEL_PATH)
+    model = model_loader.load_classifier_model(CLASSIFIER_MODEL_PATH)
+    predictions = model.predict(combined)
+
+    # Add predictions to original data
+    data["depression_prediction"] = predictions

@@ -1,0 +1,13 @@
+from .config import *
+
+__all__ = [
+    "BASE_DIR",
+    "MODELS_DIR",
+    "RESOURCES_DIR",
+    "FASTTEXT_MODEL_URL",
+    "FASTTEXT_MODEL_NAME",
+    "DEPRESSION_DICTIONARY_PATH",
+    "MIN_TEXT_LENGTH",
+    "VECTORIZER_MODEL_PATH",
+    "CLASSIFIER_MODEL_PATH",
+]

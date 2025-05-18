@@ -5,10 +5,10 @@ import type {
     CrawlerStatus as CrawlerStatusType,
 } from '@/types/crawler';
 import { useCallback, useEffect, useState } from 'react';
-import usePolling from './hooks/usePolling';
-import CrawlerStatus from './components/CrawlerStatus';
 import CrawlerForm from './components/CrawlerForm';
+import CrawlerStatus from './components/CrawlerStatus';
 import StopButton from './components/StopButton';
+import usePolling from './hooks/usePolling';
 
 const POLLING_INTERVAL = 2000;
 
@@ -74,6 +74,21 @@ export default function CrawlerPage() {
         }
     };
 
+    const handleReset = async () => {
+        try {
+            const response = await fetch('/api/crawler/reset', {
+                method: 'POST',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to reset status');
+            }
+            // Update status after reset
+            fetchStatus();
+        } catch (error) {
+            console.error('Error resetting status:', error);
+        }
+    };
+
     useEffect(() => {
         fetchStatus();
     }, [fetchStatus]);
@@ -84,7 +99,7 @@ export default function CrawlerPage() {
         <div className="flex flex-col gap-6 text-center">
             <h1 className="font-bold text-2xl">Crawler Control</h1>
 
-            <CrawlerStatus status={status} />
+            <CrawlerStatus status={status} onReset={handleReset} />
 
             {isWorking && (
                 <StopButton onClick={handleStop} disabled={loading} />

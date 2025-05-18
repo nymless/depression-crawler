@@ -9,7 +9,7 @@ export type CrawlerState =
 export type CrawlerStatus = {
     state: CrawlerState;
     current_group: string | null;
-    progress: number;
+    progress: number | null;
     error: string | null;
     should_stop: boolean;
 };
