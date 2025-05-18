@@ -6,7 +6,7 @@ from typing import List
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from vk_data_collector import create_collector
 
 from src.crawler.crawler import Crawler
@@ -28,8 +28,19 @@ crawler = Crawler(collector)
 
 
 class CollectDataRequest(BaseModel):
-    groups: List[str]
-    target_date: str
+    groups: List[str] = Field(
+        ..., min_items=1, description="List of group names to collect data from"
+    )
+    target_date: str = Field(..., description="Date in YYYY-MM-DD format")
+
+    @field_validator("target_date")
+    @classmethod
+    def validate_date_format(cls, v):
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+            return v
+        except ValueError:
+            raise ValueError("Date must be in YYYY-MM-DD format")
 
 
 @app.exception_handler(Exception)
@@ -63,15 +74,6 @@ def collect_data(
     """
     Start data collection for specified groups up to target date.
     """
-    try:
-        # Validate date format
-        datetime.strptime(request.target_date, "%Y-%m-%d")
-    except ValueError:
-        return {"error": "Invalid date format. Use YYYY-MM-DD"}
-
-    if not request.groups:
-        return {"error": "No groups specified"}
-
     # Check if crawler is already working
     current_status = crawler.status_manager.get_status()
     if current_status["state"] != "idle":
