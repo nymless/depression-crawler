@@ -73,7 +73,7 @@ def collect_data(
         saved_files = collector.collect_comments_for_posts(
             saved_files, comments_dir
         )
-        log.info(f"Collected posts saved to: {saved_files}")
+        log.info(f"Collected comments saved to: {saved_files}")
         comments_files.extend(saved_files)
 
     if not status_manager.should_stop():

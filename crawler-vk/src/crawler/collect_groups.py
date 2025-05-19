@@ -48,7 +48,7 @@ def collect_groups(
 
         # Collect groups information
         log.info(f"Collecting group information: {group}")
-        saved_files = collector.collect_groups([group], target_date, group_dir)
+        saved_files = collector.collect_groups([group], group_dir)
         log.info(f"Collected group information saved to: {saved_files}")
         groups_files.extend(saved_files)
 
