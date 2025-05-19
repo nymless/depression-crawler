@@ -6,11 +6,10 @@ from typing import List
 from vk_data_collector import Collector
 
 from src.crawler.collect_data import collect_data
+from src.crawler.database_handler.database_handler import DatabaseHandler
 from src.crawler.predict_depression import predict_depression
-from src.crawler.prediction_handler.prediction_handler import (
-    DepressionDataHandler,
-)
 from src.crawler.preprocess_data import preprocess_data
+from src.crawler.preprocess_groups import preprocess_groups
 from src.crawler.status_manager.status_manager import CrawlerStatusManager
 from src.db.db import get_db_connection
 
@@ -30,7 +29,7 @@ class Crawler:
         if not self.base_dir:
             raise ValueError("CRAWLER_DATA_DIR environment variable is not set")
         # Ensure base_dir exist
-        os.makedirs(self.base_dir, exist_ok=True, parents=True)
+        os.makedirs(self.base_dir, exist_ok=True)
 
         # Initialize database connection
         self.db_conn = get_db_connection()
@@ -53,23 +52,34 @@ class Crawler:
             self.status_manager.reset()
 
             # Initialize data handler
-            data_handler = DepressionDataHandler(
+            db_handler = DatabaseHandler(
                 conn=self.db_conn,
                 groups=groups,
                 target_date=date.fromisoformat(target_date),
             )
 
             # Create run record
-            run_id = data_handler.start_run()
+            run_id = db_handler.start_run()
 
             # Collect data
-            posts_files, comments_files = collect_data(
+            groups_files, posts_files, comments_files = collect_data(
                 groups,
                 target_date,
                 self.base_dir,
                 self.collector,
                 self.status_manager,
             )
+
+            # Save groups
+            groups_data = preprocess_groups(groups_files)
+            for _, row in groups_data.iterrows():
+                db_handler.add_group(
+                    group_id=row["id"],
+                    name=row["name"],
+                    screen_name=row["screen_name"],
+                    is_closed=row["is_closed"],
+                    type=row["type"],
+                )
 
             # Preprocess data
             self.status_manager.set_state("preprocessing")
@@ -82,7 +92,7 @@ class Crawler:
             # Save predictions
             self.status_manager.set_state("saving_results")
             for _, row in data.iterrows():
-                data_handler.save_prediction(
+                db_handler.save_prediction(
                     run_id=run_id,
                     owner_id=row["owner_id"],
                     post_id=row["post_id"],

@@ -15,7 +15,7 @@ def collect_data(
     base_dir: str,
     collector: Collector,
     status_manager: CrawlerStatusManager,
-) -> Tuple[List[str], List[str]]:
+) -> Tuple[List[str], List[str], List[str]]:
     """
     Collect posts and comments from specified VK groups up to target date.
 
@@ -27,15 +27,18 @@ def collect_data(
         status_manager: Status manager for tracking progress and state
     """
     # Create subdirectories
+    group_dir = os.path.join(base_dir, "groups")
     posts_dir = os.path.join(base_dir, "posts")
     comments_dir = os.path.join(base_dir, "comments")
     # Ensure directories exist
+    os.makedirs(group_dir, exist_ok=True)
     os.makedirs(posts_dir, exist_ok=True)
     os.makedirs(comments_dir, exist_ok=True)
 
     # Reset stop flag at the start
     status_manager.reset_stop_flag()
 
+    groups_files = []
     posts_files = []
     comments_files = []
 
@@ -61,6 +64,12 @@ def collect_data(
         log.info(f"Collected posts saved to: {saved_files}")
         posts_files.extend(saved_files)
 
+        # Collect groups information (as part of the collecting_posts step)
+        log.info(f"Collecting group information: {group}")
+        saved_files = collector.collect_groups([group], target_date, group_dir)
+        log.info(f"Collected group information saved to: {saved_files}")
+        groups_files.extend(saved_files)
+
         # Check if we should stop
         if status_manager.should_stop():
             log.info("Stop requested, skipping comments collection")
@@ -76,4 +85,4 @@ def collect_data(
         log.info(f"Collected posts saved to: {saved_files}")
         comments_files.extend(saved_files)
 
-    return posts_files, comments_files
+    return groups_files, posts_files, comments_files

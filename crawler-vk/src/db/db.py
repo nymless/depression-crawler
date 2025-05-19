@@ -24,8 +24,24 @@ def get_db_connection() -> psycopg2.extensions.connection | None:
             port=os.getenv("DB_PORT"),
         )
         return conn
+    except UnicodeDecodeError as ude:
+        # Эта ошибка теперь не должна возникать, но оставим на всякий случай
+        log.exception(
+            "UnicodeDecodeError: Error decoding connection parameters.",
+            exc_info=ude,
+        )
+        return None
     except psycopg2.Error as e:
-        log.exception("Database connection error", exc_info=e)
+        log.exception(
+            "Database connection error (psycopg2 specific)",
+            exc_info=e,
+        )
+        return None
+    except Exception as ex:
+        log.exception(
+            "An unexpected error occurred during DB connection",
+            exc_info=ex,
+        )
         return None
 
 
@@ -101,7 +117,12 @@ def create_crawler_run(
 
 
 def add_group(
-    conn: psycopg2.extensions.connection, group_id: int, name: str
+    conn: psycopg2.extensions.connection,
+    group_id: int,
+    name: str,
+    screen_name: str,
+    is_closed: int,
+    type: str,
 ) -> None:
     """
     Add a new group or update existing one.
@@ -115,12 +136,15 @@ def add_group(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO groups (id, name)
-                VALUES (%s, %s)
-                ON CONFLICT (id) DO UPDATE
-                SET name = EXCLUDED.name
-                """,
-                (group_id, name),
+                INSERT INTO groups (group_id, name, screen_name, is_closed, type)
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT (group_id) DO UPDATE SET
+                    name = EXCLUDED.name,
+                    screen_name = EXCLUDED.screen_name,
+                    is_closed = EXCLUDED.is_closed,
+                    type = EXCLUDED.type
+                """,  # noqa: E501
+                (group_id, name, screen_name, is_closed, type),
             )
             conn.commit()
     except psycopg2.Error as e:

@@ -3,12 +3,17 @@ from datetime import date
 
 import psycopg2
 
-from src.db.db import add_group, create_crawler_run, save_predictions
+from src.db.db import (
+    add_group,
+    create_crawler_run,
+    create_tables,
+    save_predictions,
+)
 
 log = logging.getLogger(__name__)
 
 
-class DepressionDataHandler:
+class DatabaseHandler:
     """Handles saving depression predictions data to the database."""
 
     def __init__(
@@ -28,6 +33,7 @@ class DepressionDataHandler:
         self.conn = conn
         self.groups = groups
         self.target_date = target_date
+        create_tables(self.db_conn)
 
     def start_run(self) -> int:
         """
@@ -42,15 +48,32 @@ class DepressionDataHandler:
             group_ids=[int(group) for group in self.groups],
         )
 
-    def add_group(self, group_id: int, name: str) -> None:
+    def add_group(
+        self,
+        group_id: int,
+        name: str,
+        screen_name: str,
+        is_closed: int,
+        type: str,
+    ) -> None:
         """
         Add a new group or update existing one.
 
         Args:
             group_id: VK group ID
             name: Group name
+            screen_name: Group screen name
+            is_closed: Group is closed
+            type: Group type
         """
-        add_group(conn=self.conn, group_id=group_id, name=name)
+        add_group(
+            conn=self.conn,
+            group_id=group_id,
+            name=name,
+            screen_name=screen_name,
+            is_closed=is_closed,
+            type=type,
+        )
 
     def save_prediction(
         self,
