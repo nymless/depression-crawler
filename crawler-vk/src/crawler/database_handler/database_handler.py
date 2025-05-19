@@ -3,12 +3,7 @@ from datetime import date
 
 import psycopg2
 
-from src.db.db import (
-    add_group,
-    create_crawler_run,
-    create_tables,
-    save_predictions,
-)
+from src.db.db import add_group, create_crawler_run, save_predictions
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +14,7 @@ class DatabaseHandler:
     def __init__(
         self,
         conn: psycopg2.extensions.connection,
-        groups: list[str],
+        group_ids: list[int],
         target_date: date,
     ) -> None:
         """
@@ -27,13 +22,12 @@ class DatabaseHandler:
 
         Args:
             conn: Database connection
-            groups: List of VK group names to analyze
+            group_ids: List of VK group IDs to analyze
             target_date: Target date for the analysis
         """
         self.conn = conn
-        self.groups = groups
+        self.group_ids = group_ids
         self.target_date = target_date
-        create_tables(self.conn)
 
     def start_run(self) -> int:
         """
@@ -45,7 +39,7 @@ class DatabaseHandler:
         return create_crawler_run(
             conn=self.conn,
             target_date=self.target_date,
-            group_ids=[int(group) for group in self.groups],
+            group_ids=self.group_ids,
         )
 
     def add_group(

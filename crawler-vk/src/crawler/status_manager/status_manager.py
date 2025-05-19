@@ -3,6 +3,9 @@ from typing import Literal, TypedDict
 
 CrawlerState = Literal[
     "idle",  # crawler is idle
+    "collecting_groups",  # collecting groups info
+    "preprocessing_groups",  # preprocessing groups info
+    "initializing",  # initializing collecting run
     "collecting_posts",  # collecting posts
     "collecting_comments",  # collecting comments
     "preprocessing",  # preprocessing data

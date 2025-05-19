@@ -6,12 +6,13 @@ from typing import List
 from vk_data_collector import Collector
 
 from src.crawler.collect_data import collect_data
+from src.crawler.collect_groups import collect_groups
 from src.crawler.database_handler.database_handler import DatabaseHandler
 from src.crawler.predict_depression import predict_depression
 from src.crawler.preprocess_data import preprocess_data
 from src.crawler.preprocess_groups import preprocess_groups
 from src.crawler.status_manager.status_manager import CrawlerStatusManager
-from src.db.db import get_db_connection
+from src.db.db import create_tables, get_db_connection
 
 log = logging.getLogger(__name__)
 
@@ -36,43 +37,58 @@ class Crawler:
         if not self.db_conn:
             raise ValueError("Failed to connect to database")
 
-    def run_pipeline(self, groups: List[str], target_date: str) -> None:
+        # Create database tables if they don't exist
+        try:
+            create_tables(self.db_conn)
+            log.info("Database tables checked/created successfully.")
+        except Exception as e:
+            log.exception(
+                "Failed to create database tables during Crawler initialization.",
+                exc_info=e,
+            )
+            raise
+
+    def run_pipeline(self, group_names: List[str], target_date: str) -> None:
         """
         Run the complete data pipeline:
-        1. Collect posts and comments from specified groups
-        2. Preprocess collected data (text cleaning, tokenization, embeddings)
-        3. Run depression detection inference
-        4. Save results to database
+        1. Collect groups
+        2. Preprocess groups
+        3. Initialize run
+        4. Collect posts
+        5. Collect comments
+        6. Preprocess data
+        7. Run inference
+        8. Save predictions
 
         Args:
-            groups: List of VK group names to collect from
+            groups_names: List of VK group names to collect from
             target_date: Target date in YYYY-MM-DD format
         """
         try:
             self.status_manager.reset()
 
-            # Initialize data handler
-            db_handler = DatabaseHandler(
-                conn=self.db_conn,
-                groups=groups,
-                target_date=date.fromisoformat(target_date),
-            )
-
-            # Create run record
-            run_id = db_handler.start_run()
-
-            # Collect data
-            groups_files, posts_files, comments_files = collect_data(
-                groups,
+            # ------ STEP 1: Collect groups --------------------
+            self.status_manager.set_state("collecting_groups")
+            groups_files = collect_groups(
+                group_names,
                 target_date,
                 self.base_dir,
                 self.collector,
                 self.status_manager,
             )
 
-            # Save groups
+            # ------ STEP 2: Preprocess groups -----------------
+            self.status_manager.set_state("preprocessing_groups")
             groups_data = preprocess_groups(groups_files)
-            for _, row in groups_data.iterrows():
+
+            # ------ STEP 3: Initialize run --------------------
+            self.status_manager.set_state("initializing")
+            db_handler = DatabaseHandler(
+                conn=self.db_conn,
+                group_ids=groups_data["id"].tolist(),
+                target_date=date.fromisoformat(target_date),
+            )
+            for _, row in groups_data.iterrows():  # Save groups
                 db_handler.add_group(
                     group_id=row["id"],
                     name=row["name"],
@@ -80,16 +96,26 @@ class Crawler:
                     is_closed=row["is_closed"],
                     type=row["type"],
                 )
+            run_id = db_handler.start_run()  # Create run record
 
-            # Preprocess data
+            # ------ STEP 4-5: Collect posts and comments ------
+            posts_files, comments_files = collect_data(
+                group_names,
+                target_date,
+                self.base_dir,
+                self.collector,
+                self.status_manager,
+            )
+
+            # ------ STEP 6: Preprocess data -------------------
             self.status_manager.set_state("preprocessing")
             data = preprocess_data(posts_files, comments_files)
 
-            # Run inference
+            # ------ STEP 7: Run inference ---------------------
             self.status_manager.set_state("inference")
             predict_depression(data)
 
-            # Save predictions
+            # ------ STEP 8: Save predictions ------------------
             self.status_manager.set_state("saving_results")
             for _, row in data.iterrows():
                 db_handler.save_prediction(
