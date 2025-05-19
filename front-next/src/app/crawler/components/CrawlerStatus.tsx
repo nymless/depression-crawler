@@ -1,4 +1,4 @@
-import type { CrawlerStatus as CrawlerStatusType } from '@/types/crawler';
+import type { CrawlerStatusType } from '@/types/crawler';
 
 interface CrawlerStatusProps {
     status: CrawlerStatusType | null;

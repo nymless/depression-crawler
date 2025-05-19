@@ -2,7 +2,7 @@
 import type {
     CollectDataRequest,
     CollectDataResponse,
-    CrawlerStatus as CrawlerStatusType,
+    CrawlerStatusType,
 } from '@/types/crawler';
 import { useCallback, useEffect, useState } from 'react';
 import CrawlerForm from './components/CrawlerForm';

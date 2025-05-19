@@ -6,7 +6,7 @@ export type CrawlerState =
     | 'inference' // inference
     | 'saving_results'; // saving results
 
-export type CrawlerStatus = {
+export type CrawlerStatusType = {
     state: CrawlerState;
     current_group: string | null;
     progress: number | null;
@@ -24,7 +24,7 @@ export type CollectDataResponse = {
     groups: string[];
     target_date: string;
     error?: string;
-    current_status?: CrawlerStatus;
+    current_status?: CrawlerStatusType;
 };
 
 export type StopResponse = {
