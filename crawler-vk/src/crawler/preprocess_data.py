@@ -120,7 +120,7 @@ def preprocess_data(
     # Prepare BOW features
     publications = feature_extractor.prepare_bow_features(publications)
     publications = publications.drop(
-        columns=[feature_extractor.bow_vector_feature], index=False
+        columns=[feature_extractor.bow_vector_feature], axis=1
     )
 
     # Load FastText model

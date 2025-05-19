@@ -120,10 +120,10 @@ class Crawler:
             for _, row in data.iterrows():
                 db_handler.save_prediction(
                     run_id=run_id,
-                    owner_id=row["owner_id"],
+                    owner_id=abs(row["owner_id"]),
                     post_id=row["post_id"],
                     vk_id=row["id"],
-                    depression_prediction=row["depression_prediction"],
+                    depression_prediction=bool(row["depression_prediction"]),
                 )
 
             self.status_manager.reset()

@@ -170,6 +170,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "requests" },
     { name = "scikit-learn" },
+    { name = "setuptools" },
     { name = "uvicorn" },
     { name = "vk-data-collector" },
     { name = "wget" },
@@ -194,6 +195,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0.1,<2.0.0" },
     { name = "requests", specifier = ">=2.32.3,<3.0.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
+    { name = "setuptools", specifier = ">=80.7.1" },
     { name = "uvicorn", specifier = ">=0.34.0,<0.35.0" },
     { name = "vk-data-collector", specifier = ">=0.2.4" },
     { name = "wget", specifier = ">=3.2" },
@@ -1022,6 +1024,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/35/f5/d0ad1a96f80962ba65e2ce1de6a1e59edecd1f0a7b55990ed208848012e0/scipy-1.13.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:637e98dcf185ba7f8e663e122ebf908c4702420477ae52a04f9908707456ba4d", size = 38612244 },
     { url = "https://files.pythonhosted.org/packages/8d/02/1165905f14962174e6569076bcc3315809ae1291ed14de6448cc151eedfd/scipy-1.13.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:a014c2b3697bde71724244f63de2476925596c24285c7a637364761f8710891c", size = 38845637 },
     { url = "https://files.pythonhosted.org/packages/3e/77/dab54fe647a08ee4253963bcd8f9cf17509c8ca64d6335141422fe2e2114/scipy-1.13.1-cp39-cp39-win_amd64.whl", hash = "sha256:392e4ec766654852c25ebad4f64e4e584cf19820b980bc04960bca0b0cd6eaa2", size = 46227440 },
+]
+
+[[package]]
+name = "setuptools"
+version = "80.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9e/8b/dc1773e8e5d07fd27c1632c45c1de856ac3dbf09c0147f782ca6d990cf15/setuptools-80.7.1.tar.gz", hash = "sha256:f6ffc5f0142b1bd8d0ca94ee91b30c0ca862ffd50826da1ea85258a06fd94552", size = 1319188 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a1/18/0e835c3a557dc5faffc8f91092f62fc337c1dab1066715842e7a4b318ec4/setuptools-80.7.1-py3-none-any.whl", hash = "sha256:ca5cc1069b85dc23070a6628e6bcecb3292acac802399c7f8edc0100619f9009", size = 1200776 },
 ]
 
 [[package]]
