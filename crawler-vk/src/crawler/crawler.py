@@ -43,7 +43,10 @@ class Crawler:
             log.info("Database tables checked/created successfully.")
         except Exception as e:
             log.exception(
-                "Failed to create database tables during Crawler initialization.",
+                (
+                    "Failed to create database tables "
+                    "during Crawler initialization."
+                ),
                 exc_info=e,
             )
             raise
@@ -53,12 +56,10 @@ class Crawler:
         Run the complete data pipeline:
         1. Collect groups
         2. Preprocess groups
-        3. Initialize run
-        4. Collect posts
-        5. Collect comments
-        6. Preprocess data
-        7. Run inference
-        8. Save predictions
+        3. Collect posts and comments
+        4. Preprocess data
+        5. Run inference
+        6. Save all results to database
 
         Args:
             groups_names: List of VK group names to collect from
@@ -81,24 +82,8 @@ class Crawler:
             self.status_manager.set_state("preprocessing_groups")
             groups_data = preprocess_groups(groups_files)
 
-            # ------ STEP 3: Initialize run --------------------
-            self.status_manager.set_state("initializing")
-            db_handler = DatabaseHandler(
-                conn=self.db_conn,
-                group_ids=groups_data["id"].tolist(),
-                target_date=date.fromisoformat(target_date),
-            )
-            for _, row in groups_data.iterrows():  # Save groups
-                db_handler.add_group(
-                    group_id=row["id"],
-                    name=row["name"],
-                    screen_name=row["screen_name"],
-                    is_closed=row["is_closed"],
-                    type=row["type"],
-                )
-            run_id = db_handler.start_run()  # Create run record
-
-            # ------ STEP 4-5: Collect posts and comments ------
+            # ------ STEP 3: Collect posts and comments ------
+            self.status_manager.set_state("collecting_data")
             posts_files, comments_files = collect_data(
                 group_names,
                 target_date,
@@ -107,24 +92,62 @@ class Crawler:
                 self.status_manager,
             )
 
-            # ------ STEP 6: Preprocess data -------------------
+            # ------ STEP 4: Preprocess data -------------------
             self.status_manager.set_state("preprocessing")
             data = preprocess_data(posts_files, comments_files)
 
-            # ------ STEP 7: Run inference ---------------------
+            # ------ STEP 5: Run inference ---------------------
             self.status_manager.set_state("inference")
             predict_depression(data)
 
-            # ------ STEP 8: Save predictions ------------------
+            # ------ STEP 6: Save all results to database ------
             self.status_manager.set_state("saving_results")
-            for _, row in data.iterrows():
-                db_handler.save_prediction(
-                    run_id=run_id,
-                    owner_id=abs(row["owner_id"]),
-                    post_id=row["post_id"],
-                    vk_id=row["id"],
-                    depression_prediction=bool(row["depression_prediction"]),
+
+            # Initialize database handler
+            db_handler = DatabaseHandler(
+                conn=self.db_conn,
+                group_ids=groups_data["id"].tolist(),
+                target_date=date.fromisoformat(target_date),
+            )
+
+            # Start transaction
+            try:
+                # Save groups
+                for _, row in groups_data.iterrows():
+                    db_handler.add_group(
+                        group_id=row["id"],
+                        name=row["name"],
+                        screen_name=row["screen_name"],
+                        is_closed=row["is_closed"],
+                        type=row["type"],
+                    )
+
+                # Create run record
+                run_id = db_handler.save_run()
+
+                # Save predictions
+                for _, row in data.iterrows():
+                    db_handler.save_prediction(
+                        run_id=run_id,
+                        owner_id=abs(row["owner_id"]),
+                        post_id=row["post_id"],
+                        vk_id=row["id"],
+                        depression_prediction=bool(
+                            row["depression_prediction"]
+                        ),
+                    )
+
+                # Commit transaction
+                self.db_conn.commit()
+                log.info("Successfully saved all results to database")
+
+            except Exception as e:
+                # Rollback transaction on any error
+                self.db_conn.rollback()
+                log.error(
+                    "Failed to save results to database, rolling back changes"
                 )
+                raise
 
             self.status_manager.reset()
 

@@ -29,17 +29,17 @@ class DatabaseHandler:
         self.group_ids = group_ids
         self.target_date = target_date
 
-    def start_run(self) -> int:
+    def save_run(self) -> int:
         """
-        Create a new crawler run record and link it with groups.
+        Save a new crawler run record and link it with groups.
 
         Returns:
             ID of the created run
         """
         return create_crawler_run(
-            conn=self.conn,
-            target_date=self.target_date,
-            group_ids=self.group_ids,
+            self.conn,
+            self.target_date,
+            self.group_ids,
         )
 
     def add_group(
