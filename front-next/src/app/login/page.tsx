@@ -38,7 +38,7 @@ export default function LoginPage() {
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                     required
-                    className="p-1"
+                    className="p-1 bg-white"
                 />
                 <input
                     type="password"
@@ -47,7 +47,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     required
-                    className="p-1"
+                    className="p-1 bg-white"
                 />
                 <button type="submit" className="hover:underline">
                     Login
