@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import List
 
@@ -21,6 +22,34 @@ from src.crawler.utils.config import (
 log = logging.getLogger(__name__)
 
 
+def load_comments_with_replies(files):
+    """
+    Load flattened comments with replies from JSON files.
+
+    Args:
+        files: List of paths to JSON files containing comments
+
+    Returns:
+        DataFrame with flattened comments and replies
+    """
+    all_comments = []
+
+    for path in files:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            for comments in data.values():
+                for comment in comments:
+                    comment["is_reply"] = 0
+                    all_comments.append(comment)
+                    thread = comment.get("thread", {})
+                    replies = thread.get("items", [])
+                    for reply in replies:
+                        reply["is_reply"] = 1
+                        all_comments.append(reply)
+
+    return pd.DataFrame(all_comments)
+
+
 def preprocess_data(
     posts_files: List[str], comments_files: List[str]
 ) -> pd.DataFrame:
@@ -35,7 +64,7 @@ def preprocess_data(
     """
     # Load and merge data
     posts = pd.concat([pd.read_json(path) for path in posts_files])
-    comments = pd.concat([pd.read_json(path) for path in comments_files])
+    comments = load_comments_with_replies(comments_files)
 
     publications = pd.concat(
         [
