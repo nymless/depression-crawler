@@ -33,7 +33,7 @@ class DatabaseHandler:
         self.conn = conn
         self.groups = groups
         self.target_date = target_date
-        create_tables(self.db_conn)
+        create_tables(self.conn)
 
     def start_run(self) -> int:
         """
