@@ -26,34 +26,37 @@ def collect_groups(
         collector: VK data collector instance
         status_manager: Status manager for tracking progress and state
     """
-    # Create subdirectories
-    group_dir = os.path.join(base_dir, "groups")
-    # Ensure directories exist
-    os.makedirs(group_dir, exist_ok=True)
+    try:
+        # Create subdirectories
+        group_dir = os.path.join(base_dir, "groups")
+        # Ensure directories exist
+        os.makedirs(group_dir, exist_ok=True)
 
-    # Reset stop flag at the start
-    status_manager.reset_stop_flag()
+        # Reset stop flag at the start
+        status_manager.reset_stop_flag()
 
-    groups_files = []
+        groups_files = []
 
-    total_groups = len(groups)
-    for i, group in enumerate(groups):
-        # Check if we should stop
-        if status_manager.should_stop():
-            log.info("Stop requested, finishing current group and stopping")
-            break
+        total_groups = len(groups)
+        for i, group in enumerate(groups):
+            # Check if we should stop
+            if status_manager.should_stop():
+                log.info("Stop requested, finishing current group and stopping")
+                break
 
-        status_manager.set_current_group(group)
-        status_manager.set_progress(int(i * 100 / total_groups))
+            status_manager.set_current_group(group)
+            status_manager.set_progress(int(i * 100 / total_groups))
 
-        # Collect groups information
-        log.info(f"Collecting group information: {group}")
-        saved_files = collector.collect_groups([group], group_dir)
-        log.info(f"Collected group information saved to: {saved_files}")
-        groups_files.extend(saved_files)
+            # Collect groups information
+            log.info(f"Collecting group information: {group}")
+            saved_files = collector.collect_groups([group], group_dir)
+            log.info(f"Collected group information saved to: {saved_files}")
+            groups_files.extend(saved_files)
 
-    if not status_manager.should_stop():
-        status_manager.set_current_group(None)
-        status_manager.set_progress(None)
-
-    return groups_files
+        return groups_files
+    except Exception as e:
+        log.exception(
+            "Error collecting groups information",
+            exc_info=e,
+        )
+        raise

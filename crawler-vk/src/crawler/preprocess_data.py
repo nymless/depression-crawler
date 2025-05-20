@@ -31,17 +31,39 @@ def load_comments_with_replies(files):
     for path in files:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-            for comments in data.values():
-                for comment in comments:
-                    comment["is_reply"] = 0
-                    all_comments.append(comment)
-                    thread = comment.get("thread", {})
-                    replies = thread.get("items", [])
-                    for reply in replies:
-                        reply["is_reply"] = 1
-                        all_comments.append(reply)
+        for comments in data.values():
+            for comment in comments:
+                comment["is_reply"] = 0
+                all_comments.append(comment)
+                thread = comment.get("thread", {})
+                replies = thread.get("items", [])
+                for reply in replies:
+                    reply["is_reply"] = 1
+                    all_comments.append(reply)
 
     return pd.DataFrame(all_comments)
+
+
+def get_embeddings(
+    model: FastTextKeyedVectors, lemmas: list[str]
+) -> list[np.ndarray]:
+    """Get embeddings for a list of lemmas.
+
+    Args:
+        model: FastText model
+        lemmas: List of lemmas
+
+    Returns:
+        List of embeddings
+    """
+    embeddings = []
+    for lemma in lemmas:
+        try:
+            embeddings.append(model[lemma])
+        except KeyError:
+            # Skip words that are not in the model's vocabulary
+            continue
+    return embeddings
 
 
 def preprocess_data(
@@ -56,96 +78,95 @@ def preprocess_data(
     Returns:
         DataFrame with preprocessed data
     """
-    # Load and merge data
-    posts = pd.concat([pd.read_json(path) for path in posts_files])
-    comments = load_comments_with_replies(comments_files)
+    try:
+        # Load and merge data
+        posts = pd.concat([pd.read_json(path) for path in posts_files])
+        comments = load_comments_with_replies(comments_files)
 
-    publications = pd.concat(
-        [
-            posts[["owner_id", "id", "text"]],
-            comments[["owner_id", "post_id", "id", "text"]],
-        ],
-        ignore_index=True,
-        join="outer",
-    )
-    posts = None
-    comments = None
+        publications = pd.concat(
+            [
+                posts[["owner_id", "id", "text"]],
+                comments[["owner_id", "post_id", "id", "text"]],
+            ],
+            ignore_index=True,
+            join="outer",
+        )
+        posts = None
+        comments = None
 
-    # Cast types
-    publications["post_id"] = publications["post_id"].fillna(0.0)
-    publications["post_id"] = publications["post_id"].astype(np.int64)
-    publications["owner_id"] = publications["owner_id"].astype(np.int64)
-    publications["id"] = publications["id"].astype(np.int64)
+        # Cast types
+        publications["post_id"] = publications["post_id"].fillna(0.0)
+        publications["post_id"] = publications["post_id"].astype(np.int64)
+        publications["owner_id"] = publications["owner_id"].astype(np.int64)
+        publications["id"] = publications["id"].astype(np.int64)
 
-    # Filter by text length
-    publications["text"] = publications["text"].fillna("")
-    publications = publications[
-        publications["text"].apply(lambda x: len(x) > settings.min_text_length)
-    ]
-
-    # Initialize processors
-    text_processor = TextProcessor()
-    feature_extractor = DepressionFeatureExtractor(
-        str(settings.depression_dictionary_path)
-    )
-    model_loader = ModelLoader(models_dir=settings.vectorizer_model_path)
-
-    # Process text
-    publications["text"] = publications["text"].apply(text_processor.clean_text)
-    publications["tokens"] = publications["text"].apply(
-        text_processor.tokenize_text
-    )
-
-    # Filter empty tokens
-    publications = publications[publications["tokens"].apply(len) > 0]
-
-    # Extract features
-    publications[
-        [
-            feature_extractor.bow_vector_feature,
-            feature_extractor.bow_count_feature,
+        # Filter by text length
+        publications["text"] = publications["text"].fillna("")
+        publications = publications[
+            publications["text"].apply(
+                lambda x: len(x) > settings.min_text_length
+            )
         ]
-    ] = (
-        publications["tokens"]
-        .apply(feature_extractor.extract_depression_features)
-        .apply(pd.Series)
-    )
 
-    # Prepare BOW features
-    publications = feature_extractor.prepare_bow_features(publications)
-    publications = publications.drop(
-        columns=[feature_extractor.bow_vector_feature], axis=1
-    )
+        # Initialize processors
+        text_processor = TextProcessor()
+        feature_extractor = DepressionFeatureExtractor(
+            str(settings.depression_dictionary_path)
+        )
+        model_loader = ModelLoader(models_dir=settings.vectorizer_model_path)
 
-    # Load FastText model
-    model_path = model_loader.fetch_model(
-        settings.fasttext_model_url, settings.fasttext_model_name
-    )
-    model = model_loader.load_fasttext_model(model_path)
+        # Process text
+        publications["text"] = publications["text"].apply(
+            text_processor.clean_text
+        )
+        publications["tokens"] = publications["text"].apply(
+            text_processor.tokenize_text
+        )
 
-    def get_embeddings(
-        model: FastTextKeyedVectors, lemmas: list[str]
-    ) -> list[np.ndarray]:
-        embeddings = []
-        for lemma in lemmas:
-            try:
-                embeddings.append(model[lemma])
-            except KeyError:
-                # Skip words that are not in the model's vocabulary
-                continue
-        return embeddings
+        # Filter empty tokens
+        publications = publications[publications["tokens"].apply(len) > 0]
 
-    # Extract word embeddings for each token
-    publications["embeddings"] = publications["tokens"].apply(
-        lambda x: get_embeddings(model, x)
-    )
+        # Extract features
+        publications[
+            [
+                feature_extractor.bow_vector_feature,
+                feature_extractor.bow_count_feature,
+            ]
+        ] = (
+            publications["tokens"]
+            .apply(feature_extractor.extract_depression_features)
+            .apply(pd.Series)
+        )
 
-    # Calculate mean embeddings
-    publications["embeddings"] = publications["embeddings"].apply(
-        lambda x: np.mean(x, axis=0)
-    )
+        # Prepare BOW features
+        publications = feature_extractor.prepare_bow_features(publications)
+        publications = publications.drop(
+            columns=[feature_extractor.bow_vector_feature], axis=1
+        )
 
-    # Filter rows with empty embeddings
-    publications = publications[publications["embeddings"].apply(len) > 0]
+        # Load FastText model
+        model_path = model_loader.fetch_model(
+            settings.fasttext_model_url, settings.fasttext_model_name
+        )
+        model = model_loader.load_fasttext_model(model_path)
 
-    return publications
+        # Extract word embeddings for each token
+        publications["embeddings"] = publications["tokens"].apply(
+            lambda x: get_embeddings(model, x)
+        )
+
+        # Calculate mean embeddings
+        publications["embeddings"] = publications["embeddings"].apply(
+            lambda x: np.mean(x, axis=0)
+        )
+
+        # Filter rows with empty embeddings
+        publications = publications[publications["embeddings"].apply(len) > 0]
+
+        return publications
+    except Exception as e:
+        log.exception(
+            "Error preprocessing posts and comments data",
+            exc_info=e,
+        )
+        raise

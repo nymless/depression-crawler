@@ -6,13 +6,15 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
+from src.config import settings
+
 
 class DepressionFeatureExtractor:
     def __init__(self, dictionary_path: str):
         with open(dictionary_path, "r") as f:
             self.depression_dictionary = json.load(f)
-        self.bow_vector_feature = "depression_bow_vector"
-        self.bow_count_feature = "depression_words_count"
+        self.bow_vector_feature = settings.bow_vector_feature
+        self.bow_count_feature = settings.bow_count_feature
 
     def extract_depression_features(
         self, tokenized_text: List[str]

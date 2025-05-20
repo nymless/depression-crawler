@@ -31,7 +31,8 @@ class Crawler:
         # Initialize database connection
         self.db_conn = get_db_connection()
         if not self.db_conn:
-            raise ValueError("Failed to connect to database")
+            log.exception("Crawler failed to connect to database")
+            raise ValueError("Crawler failed to connect to database")
 
         # Create database tables if they don't exist
         try:
@@ -141,7 +142,8 @@ class Crawler:
                 # Rollback transaction on any error
                 self.db_conn.rollback()
                 log.error(
-                    "Failed to save results to database, rolling back changes"
+                    "Failed to save results to database, rolling back changes",
+                    exc_info=e,
                 )
                 raise
 

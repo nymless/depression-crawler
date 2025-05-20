@@ -17,23 +17,33 @@ def predict_depression(data: pd.DataFrame) -> None:
     Args:
         data: DataFrame with embeddings and features to predict on
     """
-    # Prepare features list
-    with open(
-        settings.classifier_model_path.joinpath("selected_features.json"), "r"
-    ) as f:
-        selected_features = json.load(f)
+    try:
+        # Prepare features list
+        with open(
+            settings.classifier_model_path.joinpath("selected_features.json"),
+            "r",
+        ) as f:
+            selected_features = json.load(f)
 
-    # Prepare embeddings and features
-    embeddings = np.array(data["embeddings"].to_list())
-    features = data[selected_features].to_numpy()
+        # Prepare embeddings and features
+        embeddings = np.array(data["embeddings"].to_list())
+        features = data[selected_features].to_numpy()
 
-    # Combine embeddings and features
-    combined = np.hstack((embeddings, features))
+        # Combine embeddings and features
+        combined = np.hstack((embeddings, features))
 
-    # Initialize and use model
-    model_loader = ModelLoader(models_dir=settings.classifier_model_path)
-    model = model_loader.load_classifier_model(settings.classifier_model_path)
-    predictions = model.predict(combined)
+        # Initialize and use model
+        model_loader = ModelLoader(models_dir=settings.classifier_model_path)
+        model = model_loader.load_classifier_model(
+            settings.classifier_model_path
+        )
+        predictions = model.predict(combined)
 
-    # Add predictions to original data
-    data["depression_prediction"] = predictions
+        # Add predictions to original data
+        data["depression_prediction"] = predictions
+    except Exception as e:
+        log.exception(
+            "Error predicting depression",
+            exc_info=e,
+        )
+        raise

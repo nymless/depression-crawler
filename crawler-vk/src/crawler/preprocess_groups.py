@@ -17,7 +17,14 @@ def preprocess_groups(
     Returns:
         DataFrame with preprocessed data
     """
-    # Load and merge data
-    groups = pd.concat([pd.read_json(path) for path in groups_files])
+    try:
+        # Load and merge data
+        groups = pd.concat([pd.read_json(path) for path in groups_files])
 
-    return groups[["id", "name", "screen_name", "is_closed", "type"]]
+        return groups[["id", "name", "screen_name", "is_closed", "type"]]
+    except Exception as e:
+        log.exception(
+            "Error preprocessing groups data",
+            exc_info=e,
+        )
+        raise

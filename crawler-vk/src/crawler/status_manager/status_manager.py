@@ -5,9 +5,7 @@ CrawlerState = Literal[
     "idle",  # crawler is idle
     "collecting_groups",  # collecting groups info
     "preprocessing_groups",  # preprocessing groups info
-    "initializing",  # initializing collecting run
-    "collecting_posts",  # collecting posts
-    "collecting_comments",  # collecting comments
+    "collecting_data",  # collecting posts and comments
     "preprocessing",  # preprocessing data
     "inference",  # inference
     "saving_results",  # saving results
@@ -47,7 +45,8 @@ class CrawlerStatusManager:
         with self._lock:
             self._status["state"] = state
             # Reset progress for non-collecting states
-            if state not in ["collecting_posts", "collecting_comments"]:
+            if state not in ["collecting_data", "collecting_groups"]:
+                self._status["current_group"] = None
                 self._status["progress"] = None
 
     def set_current_group(self, group: str | None) -> None:

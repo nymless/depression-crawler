@@ -24,9 +24,13 @@ class Settings(BaseSettings):
     # Model paths
     vectorizer_model_path: Path = models_dir / "vectorizer"
     classifier_model_path: Path = models_dir / "classifier"
+
+    # Features
     depression_dictionary_path: Path = (
         resources_dir / "depression_dictionary.json"
     )
+    bow_vector_feature: str = "depression_bow_vector"
+    bow_count_feature: str = "depression_words_count"
 
     model_config = SettingsConfigDict()
 
