@@ -45,7 +45,8 @@ class CrawlerStatusManager:
     def set_state(self, state: CrawlerState) -> None:
         """Set current state."""
         with self._lock:
-            if self._status["should_stop"]:
+            # Don't check stop flag when setting idle state
+            if state != "idle" and self._status["should_stop"]:
                 raise CrawlerStopRequested()
             self._status["state"] = state
             # Reset progress for non-collecting states
@@ -56,7 +57,8 @@ class CrawlerStatusManager:
     def set_current_group(self, group: str | None) -> None:
         """Set current group being processed."""
         with self._lock:
-            if self._status["should_stop"]:
+            # Don't check stop flag when resetting group to None
+            if group is not None and self._status["should_stop"]:
                 raise CrawlerStopRequested()
             self._status["current_group"] = group
 

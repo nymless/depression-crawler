@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import List
 
-from fastapi import BackgroundTasks, FastAPI, Request
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from vk_data_collector import create_collector
@@ -44,10 +44,14 @@ async def global_exception_handler(request: Request, e: Exception):
 
 
 @app.get("/status")
-def get_status():
-    """Get the current status of the crawler."""
-    status = crawler.status_manager.get_status()
-    return status
+async def get_status():
+    """Get current crawler status."""
+    try:
+        status = crawler.status_manager.get_status()
+        return status
+    except Exception as e:
+        log.exception("Error getting status", exc_info=e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/stop")
