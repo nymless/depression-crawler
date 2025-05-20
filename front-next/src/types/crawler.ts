@@ -1,10 +1,11 @@
 export type CrawlerState =
-    | 'idle' // waiting
-    | 'collecting_posts' // collecting posts
-    | 'collecting_comments' // collecting comments
-    | 'preprocessing' // preprocessing data
-    | 'inference' // inference
-    | 'saving_results'; // saving results
+    | "idle" // waiting
+    | "collecting_groups" // collecting groups info
+    | "preprocessing_groups" // preprocessing groups info
+    | "collecting_data" // collecting posts and comments
+    | "preprocessing" // preprocessing data
+    | "inference" // inference
+    | "saving_results"; // saving results
 
 export type CrawlerStatusType = {
     state: CrawlerState;
