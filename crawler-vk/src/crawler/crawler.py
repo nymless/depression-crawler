@@ -1,10 +1,10 @@
 import logging
-import os
 from datetime import date
 from typing import List
 
 from vk_data_collector import Collector
 
+from src.config import settings
 from src.crawler.collect_data import collect_data
 from src.crawler.collect_groups import collect_groups
 from src.crawler.database_handler.database_handler import DatabaseHandler
@@ -26,11 +26,7 @@ class Crawler:
         self.collector = collector
         self.status_manager = CrawlerStatusManager()
         # Get base directory from environment
-        self.base_dir = os.getenv("CRAWLER_DATA_DIR")
-        if not self.base_dir:
-            raise ValueError("CRAWLER_DATA_DIR environment variable is not set")
-        # Ensure base_dir exist
-        os.makedirs(self.base_dir, exist_ok=True)
+        self.base_dir = settings.base_dir
 
         # Initialize database connection
         self.db_conn = get_db_connection()

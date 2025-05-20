@@ -9,7 +9,7 @@ from sklearn.svm import SVC
 
 
 class ModelLoader:
-    def __init__(self, models_dir: str = "models"):
+    def __init__(self, models_dir):
         self.models_dir = Path(models_dir)
         self.models_dir.mkdir(exist_ok=True, parents=True)
 

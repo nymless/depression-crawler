@@ -6,18 +6,12 @@ import numpy as np
 import pandas as pd
 from gensim.models.fasttext import FastTextKeyedVectors
 
+from src.config import settings
 from src.crawler.model_loader.model_loader import ModelLoader
 from src.crawler.preprocessing.feature_extractor import (
     DepressionFeatureExtractor,
 )
 from src.crawler.preprocessing.text_processor import TextProcessor
-from src.crawler.utils.config import (
-    DEPRESSION_DICTIONARY_PATH,
-    FASTTEXT_MODEL_NAME,
-    FASTTEXT_MODEL_URL,
-    MIN_TEXT_LENGTH,
-    VECTORIZER_MODEL_PATH,
-)
 
 log = logging.getLogger(__name__)
 
@@ -86,15 +80,15 @@ def preprocess_data(
     # Filter by text length
     publications["text"] = publications["text"].fillna("")
     publications = publications[
-        publications["text"].apply(lambda x: len(x) > MIN_TEXT_LENGTH)
+        publications["text"].apply(lambda x: len(x) > settings.min_text_length)
     ]
 
     # Initialize processors
     text_processor = TextProcessor()
     feature_extractor = DepressionFeatureExtractor(
-        str(DEPRESSION_DICTIONARY_PATH)
+        str(settings.depression_dictionary_path)
     )
-    model_loader = ModelLoader(models_dir=VECTORIZER_MODEL_PATH)
+    model_loader = ModelLoader(models_dir=settings.vectorizer_model_path)
 
     # Process text
     publications["text"] = publications["text"].apply(text_processor.clean_text)
@@ -125,7 +119,7 @@ def preprocess_data(
 
     # Load FastText model
     model_path = model_loader.fetch_model(
-        FASTTEXT_MODEL_URL, FASTTEXT_MODEL_NAME
+        settings.fasttext_model_url, settings.fasttext_model_name
     )
     model = model_loader.load_fasttext_model(model_path)
 

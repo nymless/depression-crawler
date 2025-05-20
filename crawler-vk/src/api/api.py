@@ -1,5 +1,4 @@
 import logging
-import os
 from datetime import datetime
 from typing import List
 
@@ -11,19 +10,16 @@ from vk_data_collector import create_collector
 
 from src.crawler.crawler import Crawler
 
-app = FastAPI()
+# Load environment variables before importing settings
+load_dotenv()
 
-# Logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
-)
+from src.config import settings  # noqa: E402
+
+app = FastAPI()
 log = logging.getLogger(__name__)
 
 # Initialize services
-load_dotenv()
-token = os.getenv("SERVICE_TOKEN")
-collector = create_collector(token)
+collector = create_collector(settings.service_token)
 crawler = Crawler(collector)
 
 

@@ -19,6 +19,7 @@ dependencies = [
     "gensim>=4.3.3",
     "wget>=3.2",
     "setuptools>=80.7.1",
+    "pydantic-settings>=2.9.1",
 ]
 
 [build-system]
