@@ -2,18 +2,13 @@ import logging
 from datetime import datetime
 from typing import List
 
-from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 from vk_data_collector import create_collector
 
+from src.config import settings
 from src.crawler.crawler import Crawler
-
-# Load environment variables before importing settings
-load_dotenv()
-
-from src.config import settings  # noqa: E402
 
 app = FastAPI()
 log = logging.getLogger(__name__)
