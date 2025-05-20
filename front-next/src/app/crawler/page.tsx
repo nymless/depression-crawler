@@ -7,7 +7,6 @@ import type {
 import { useCallback, useEffect, useState } from 'react';
 import CrawlerForm from './components/CrawlerForm';
 import CrawlerStatus from './components/CrawlerStatus';
-import StopButton from './components/StopButton';
 import usePolling from './hooks/usePolling';
 
 const POLLING_INTERVAL = 2000;
@@ -99,17 +98,19 @@ export default function CrawlerPage() {
         <div className="flex flex-col gap-6 text-center">
             <h1 className="font-bold text-2xl">Crawler Control</h1>
 
-            <CrawlerStatus status={status} onReset={handleReset} />
-
-            {isWorking && (
-                <StopButton onClick={handleStop} disabled={loading} />
-            )}
-
             <CrawlerForm
                 onSubmit={handleCollect}
                 loading={loading}
                 isWorking={isWorking}
                 error={error}
+            />
+
+            <CrawlerStatus
+                status={status}
+                onReset={handleReset}
+                onStop={handleStop}
+                isWorking={isWorking}
+                loading={loading}
             />
         </div>
     );

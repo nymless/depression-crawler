@@ -35,7 +35,7 @@ export default function CrawlerForm({ onSubmit, loading, isWorking, error }: Cra
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-8">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <h2 className="font-bold text-xl">Collect Data</h2>
             <div>
                 <label htmlFor="groups" className="block mb-2">

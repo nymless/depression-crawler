@@ -1,0 +1,9 @@
+secrets/
+.env
+!.env.example
+data/
+models/
+**/logs
+*.log
+**/.venv
+**/.git
