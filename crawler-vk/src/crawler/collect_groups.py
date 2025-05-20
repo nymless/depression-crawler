@@ -39,11 +39,7 @@ def collect_groups(
 
         total_groups = len(groups)
         for i, group in enumerate(groups):
-            # Check if we should stop
-            if status_manager.should_stop():
-                log.info("Stop requested, finishing current group and stopping")
-                break
-
+            # Set current group and check if we should stop
             status_manager.set_current_group(group)
             status_manager.set_progress(int(i * 100 / total_groups))
 

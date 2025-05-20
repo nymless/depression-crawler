@@ -8,6 +8,7 @@ from src.config import settings
 from src.crawler.collect_data import collect_data
 from src.crawler.collect_groups import collect_groups
 from src.crawler.database_handler.database_handler import DatabaseHandler
+from src.crawler.exceptions.crawler_exceptions import CrawlerStopRequested
 from src.crawler.predict_depression import predict_depression
 from src.crawler.preprocess_data import preprocess_data
 from src.crawler.preprocess_groups import preprocess_groups
@@ -149,6 +150,10 @@ class Crawler:
 
             self.status_manager.reset()
 
+        except CrawlerStopRequested as sr:
+            log.info("Crawler stop was requested", exc_info=sr)
+            self.status_manager.set_state("idle")
+            self.status_manager.set_error("Crawler was stopped by user request")
         except Exception as e:
             log.exception("Error during data pipeline processing", exc_info=e)
             self.status_manager.set_state("idle")

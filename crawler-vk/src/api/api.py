@@ -53,7 +53,7 @@ def get_status():
 @app.post("/stop")
 def stop_crawler():
     """Request the crawler to stop its current work."""
-    crawler.status_manager.request_stop()
+    crawler.status_manager.set_stop_flag()
     log.info("Crawler stop requested")
     return {"status": "stop_requested"}
 

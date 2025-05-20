@@ -1,6 +1,8 @@
 import threading
 from typing import Literal, TypedDict
 
+from src.crawler.exceptions.crawler_exceptions import CrawlerStopRequested
+
 CrawlerState = Literal[
     "idle",  # crawler is idle
     "collecting_groups",  # collecting groups info
@@ -43,6 +45,8 @@ class CrawlerStatusManager:
     def set_state(self, state: CrawlerState) -> None:
         """Set current state."""
         with self._lock:
+            if self._status["should_stop"]:
+                raise CrawlerStopRequested()
             self._status["state"] = state
             # Reset progress for non-collecting states
             if state not in ["collecting_data", "collecting_groups"]:
@@ -52,6 +56,8 @@ class CrawlerStatusManager:
     def set_current_group(self, group: str | None) -> None:
         """Set current group being processed."""
         with self._lock:
+            if self._status["should_stop"]:
+                raise CrawlerStopRequested()
             self._status["current_group"] = group
 
     def set_progress(self, progress: int) -> None:

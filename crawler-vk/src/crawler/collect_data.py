@@ -42,11 +42,7 @@ def collect_data(
 
         total_groups = len(group_names)
         for i, group in enumerate(group_names):
-            # Check if we should stop
-            if status_manager.should_stop():
-                log.info("Stop requested, finishing current group and stopping")
-                break
-
+            # Set current group and check if we should stop
             status_manager.set_current_group(group)
             status_manager.set_progress(int(i * 100 / total_groups))
 
@@ -58,10 +54,8 @@ def collect_data(
             log.info(f"Collected posts saved to: {saved_files}")
             posts_files.extend(saved_files)
 
-            # Check if we should stop
-            if status_manager.should_stop():
-                log.info("Stop requested, skipping comments collection")
-                break
+            # Set current group and check if we should stop
+            status_manager.set_current_group(group)
 
             # Collect comments
             log.info(f"Collecting comments for group: {group}")
