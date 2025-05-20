@@ -1,4 +1,7 @@
-.PHONY: serve build run
+.PHONY: install serve build run
+
+install:
+	uv sync
 
 serve:
 	uv run uvicorn src.api.api:app --host 0.0.0.0 --port 8000
