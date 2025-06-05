@@ -25,7 +25,6 @@ def get_db_connection() -> psycopg2.extensions.connection | None:
         )
         return conn
     except UnicodeDecodeError as ude:
-        # Эта ошибка теперь не должна возникать, но оставим на всякий случай
         log.exception(
             "UnicodeDecodeError: Error decoding connection parameters.",
             exc_info=ude,
