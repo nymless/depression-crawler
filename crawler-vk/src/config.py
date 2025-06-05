@@ -9,19 +9,20 @@ load_dotenv()
 
 class Settings(BaseSettings):
     # Base paths
-    project_root: Path = Path.cwd().parent
-    crawler_dir: Path = project_root / "crawler-vk"
-    resources_dir: Path = crawler_dir / "resources"
-    logs_dir: Path = project_root / "logs"
-    models_dir: Path = project_root / "models"
-    base_dir: Path = project_root / "data"
+    crawler_root: Path = Path.cwd()
+    resources_dir: Path = crawler_root / "./resources"
+    data_dir: Path = crawler_root / "./data"
+    logs_dir: Path = crawler_root / "./logs"
+    models_dir: Path = crawler_root / "./models"
 
     # API settings
     service_token: str
 
-    # Model settings
-    fasttext_model_url: str = "https://vectors.nlpl.eu/repository/20/213.zip"
-    fasttext_model_name: str = "geowac_lemmas_none_fasttextskipgram_300_5_2020"
+    # Model urls
+    vectorizer_model_url: str = "https://vectors.nlpl.eu/repository/20/213.zip"
+    classifier_model_gdrive_id: str = "https://drive.google.com/uc?id=1tfEAATh00xiUxORls9bwm79bAMRG9EoU"
+    
+    # Skip texts less than min_text_length
     min_text_length: int = 50
 
     # Model paths
@@ -41,7 +42,9 @@ class Settings(BaseSettings):
         super().__init__(**kwargs)
         # Ensure directories exist
         self.logs_dir.mkdir(exist_ok=True, parents=True)
-        self.base_dir.mkdir(exist_ok=True, parents=True)
+        self.data_dir.mkdir(exist_ok=True, parents=True)
+        self.vectorizer_model_path.mkdir(exist_ok=True, parents=True)
+        self.classifier_model_path.mkdir(exist_ok=True, parents=True)
 
         # Configure logging
         logging.basicConfig(

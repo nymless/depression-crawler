@@ -33,10 +33,14 @@ def predict_depression(data: pd.DataFrame) -> None:
         combined = np.hstack((embeddings, features))
 
         # Initialize and use model
-        model_loader = ModelLoader(models_dir=settings.classifier_model_path)
-        model = model_loader.load_classifier_model(
-            settings.classifier_model_path
+        model_loader = ModelLoader(
+            vectorizer_model_path=settings.vectorizer_model_path,
+            classifier_model_path=settings.classifier_model_path,
         )
+        model_path = model_loader.fetch_classifier_model(
+            settings.classifier_model_gdrive_id
+        )
+        model = model_loader.load_classifier_model(model_path)
         predictions = model.predict(combined)
 
         # Add predictions to original data

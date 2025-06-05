@@ -26,8 +26,8 @@ class Crawler:
     def __init__(self, collector: Collector) -> None:
         self.collector = collector
         self.status_manager = CrawlerStatusManager()
-        # Get base directory from environment
-        self.base_dir = settings.base_dir
+        # Get base data directory from environment
+        self.data_dir = settings.data_dir
 
         # Initialize database connection
         self.db_conn = get_db_connection()
@@ -71,7 +71,7 @@ class Crawler:
             groups_files = collect_groups(
                 group_names,
                 target_date,
-                self.base_dir,
+                self.data_dir,
                 self.collector,
                 self.status_manager,
             )
@@ -85,7 +85,7 @@ class Crawler:
             posts_files, comments_files = collect_data(
                 group_names,
                 target_date,
-                self.base_dir,
+                self.data_dir,
                 self.collector,
                 self.status_manager,
             )

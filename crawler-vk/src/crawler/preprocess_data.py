@@ -113,7 +113,10 @@ def preprocess_data(
         feature_extractor = DepressionFeatureExtractor(
             str(settings.depression_dictionary_path)
         )
-        model_loader = ModelLoader(models_dir=settings.vectorizer_model_path)
+        model_loader = ModelLoader(
+            vectorizer_model_path=settings.vectorizer_model_path,
+            classifier_model_path=settings.classifier_model_path,
+        )
 
         # Process text
         publications["text"] = publications["text"].apply(
@@ -145,10 +148,10 @@ def preprocess_data(
         )
 
         # Load FastText model
-        model_path = model_loader.fetch_model(
-            settings.fasttext_model_url, settings.fasttext_model_name
+        model_path = model_loader.fetch_vectorizer_model(
+            settings.vectorizer_model_url
         )
-        model = model_loader.load_fasttext_model(model_path)
+        model = model_loader.load_vectorizer_model(model_path)
 
         # Extract word embeddings for each token
         publications["embeddings"] = publications["tokens"].apply(
