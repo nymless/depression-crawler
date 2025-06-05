@@ -33,6 +33,7 @@ dev = [
     "mypy>=1.15.0,<2",
     "types-requests>=2.32.0.20241016,<3",
     "pytest>=8.3.5",
+    "types-psycopg2>=2.9.21.20250516",
 ]
 
 [tool.uv]

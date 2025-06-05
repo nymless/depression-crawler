@@ -3,11 +3,12 @@ import os
 from datetime import date
 
 import psycopg2
+from psycopg2._psycopg import connection
 
 log = logging.getLogger(__name__)
 
 
-def get_db_connection() -> psycopg2.extensions.connection | None:
+def get_db_connection() -> connection:
     """
     Create a connection to the PostgreSQL database.
     Uses environment variables for connection parameters.
@@ -44,7 +45,7 @@ def get_db_connection() -> psycopg2.extensions.connection | None:
         return None
 
 
-def create_tables(conn: psycopg2.extensions.connection) -> None:
+def create_tables(conn: connection) -> None:
     """
     Create all necessary tables if they don't exist.
 
@@ -63,7 +64,7 @@ def create_tables(conn: psycopg2.extensions.connection) -> None:
 
 
 def create_crawler_run(
-    conn: psycopg2.extensions.connection,
+    conn: connection,
     target_date: date,
     group_ids: list[int],
 ) -> int:
@@ -116,7 +117,7 @@ def create_crawler_run(
 
 
 def add_group(
-    conn: psycopg2.extensions.connection,
+    conn: connection,
     group_id: int,
     name: str,
     screen_name: str,
@@ -153,7 +154,7 @@ def add_group(
 
 
 def save_predictions(
-    conn: psycopg2.extensions.connection,
+    conn: connection,
     run_id: int,
     owner_id: int,
     post_id: int,
