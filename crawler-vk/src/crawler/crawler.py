@@ -93,6 +93,16 @@ class Crawler:
             # ------ STEP 4: Preprocess data -------------------
             self.status_manager.set_state("preprocessing")
             data = preprocess_data(posts_files, comments_files)
+            if data is None or data.empty:
+                log.info(
+                    (
+                        "No data to process after preprocessing. "
+                        "Stopping pipeline."
+                    )
+                )
+                self.status_manager.set_state("idle")
+                self.status_manager.set_error("No data to process.")
+                return None
 
             # ------ STEP 5: Run inference ---------------------
             self.status_manager.set_state("inference")

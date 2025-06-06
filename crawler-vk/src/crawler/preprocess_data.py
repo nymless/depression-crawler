@@ -41,7 +41,9 @@ def load_comments_with_replies(files):
                     reply["is_reply"] = 1
                     all_comments.append(reply)
 
-    return pd.DataFrame(all_comments)
+    return pd.DataFrame(
+        all_comments, columns=["owner_id", "post_id", "id", "text"]
+    )
 
 
 def get_embeddings(
@@ -79,6 +81,11 @@ def preprocess_data(
         DataFrame with preprocessed data
     """
     try:
+        # Check if there is no posts
+        if len(posts_files) == 0:
+            log.info("No posts downloaded, skipping further processing.")
+            return None
+
         # Load and merge data
         posts = pd.concat([pd.read_json(path) for path in posts_files])
         comments = load_comments_with_replies(comments_files)
@@ -97,10 +104,10 @@ def preprocess_data(
         # Cast types
         publications["post_id"] = publications["post_id"].fillna(0.0)
         publications["post_id"] = publications["post_id"].astype(np.int64)
-        
+
         publications = publications[~publications["owner_id"].isna()]
         publications["owner_id"] = publications["owner_id"].astype(np.int64)
-        
+
         publications = publications[~publications["id"].isna()]
         publications["id"] = publications["id"].astype(np.int64)
 
@@ -111,6 +118,15 @@ def preprocess_data(
                 lambda x: len(x) > settings.min_text_length
             )
         ]
+
+        if publications.empty:
+            log.info(
+                (
+                    "No publications after preprocessing, "
+                    "skipping further processing."
+                )
+            )
+            return None
 
         # Initialize processors
         text_processor = TextProcessor()

@@ -27,7 +27,7 @@ def predict_depression(data: pd.DataFrame) -> None:
             settings.classifier_model_gdrive_id
         )
         model = model_loader.load_classifier_model(model_path)
-        
+
         # Prepare features list
         with open(
             settings.classifier_model_path.joinpath("selected_features.json"),
