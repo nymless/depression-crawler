@@ -20,8 +20,10 @@ class Settings(BaseSettings):
 
     # Model urls
     vectorizer_model_url: str = "https://vectors.nlpl.eu/repository/20/213.zip"
-    classifier_model_gdrive_id: str = "https://drive.google.com/uc?id=1tfEAATh00xiUxORls9bwm79bAMRG9EoU"
-    
+    classifier_model_gdrive_id: str = (
+        "https://drive.google.com/uc?id=1FgczRLX0H22maPxkIUa6hhvWC07LDnWD"
+    )
+
     # Skip texts less than min_text_length
     min_text_length: int = 50
 

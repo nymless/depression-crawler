@@ -18,6 +18,16 @@ def predict_depression(data: pd.DataFrame) -> None:
         data: DataFrame with embeddings and features to predict on
     """
     try:
+        # Initialize model
+        model_loader = ModelLoader(
+            vectorizer_model_path=settings.vectorizer_model_path,
+            classifier_model_path=settings.classifier_model_path,
+        )
+        model_path = model_loader.fetch_classifier_model(
+            settings.classifier_model_gdrive_id
+        )
+        model = model_loader.load_classifier_model(model_path)
+        
         # Prepare features list
         with open(
             settings.classifier_model_path.joinpath("selected_features.json"),
@@ -32,15 +42,7 @@ def predict_depression(data: pd.DataFrame) -> None:
         # Combine embeddings and features
         combined = np.hstack((embeddings, features))
 
-        # Initialize and use model
-        model_loader = ModelLoader(
-            vectorizer_model_path=settings.vectorizer_model_path,
-            classifier_model_path=settings.classifier_model_path,
-        )
-        model_path = model_loader.fetch_classifier_model(
-            settings.classifier_model_gdrive_id
-        )
-        model = model_loader.load_classifier_model(model_path)
+        # Use model
         predictions = model.predict(combined)
 
         # Add predictions to original data

@@ -97,7 +97,11 @@ def preprocess_data(
         # Cast types
         publications["post_id"] = publications["post_id"].fillna(0.0)
         publications["post_id"] = publications["post_id"].astype(np.int64)
+        
+        publications = publications[~publications["owner_id"].isna()]
         publications["owner_id"] = publications["owner_id"].astype(np.int64)
+        
+        publications = publications[~publications["id"].isna()]
         publications["id"] = publications["id"].astype(np.int64)
 
         # Filter by text length
